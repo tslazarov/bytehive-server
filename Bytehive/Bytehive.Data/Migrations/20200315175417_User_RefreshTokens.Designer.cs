@@ -4,14 +4,16 @@ using Bytehive.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bytehive.Data.Migrations
 {
     [DbContext(typeof(BytehiveDbContext))]
-    partial class BytehiveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200315175417_User_RefreshTokens")]
+    partial class User_RefreshTokens
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -89,7 +91,7 @@ namespace Bytehive.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("refresh_token");
+                    b.ToTable("RefreshToken");
                 });
 
             modelBuilder.Entity("Bytehive.Data.Models.ScrapeRequest", b =>

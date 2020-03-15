@@ -1,56 +1,28 @@
 ﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Bytehive.Data;
-using Bytehive.Services.Contracts;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Bytehive.Data.Models;
+using Bytehive.Services.Contracts.Repository;
+using Bytehive.Services.Contracts.Services;
 using System.Threading.Tasks;
 
 namespace Bytehive.Services
 {
     public class UsersService : IUsersService
     {
-        private readonly BytehiveDbContext db;
-        private readonly IMapper mapper;
+        private readonly IUsersRepository usersRepository;
 
-        public UsersService(BytehiveDbContext db,
-            IMapper mapper)
+        public UsersService(IUsersRepository usersRepository)
         {
-            this.db = db;
-            this.mapper = mapper;
+            this.usersRepository = usersRepository;
         }
 
-        public async Task<IEnumerable<TModel>> GetAll<TModel>()
+        public async Task<User> GetUser(string email)
         {
-            return await this.db.Users
-                  .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
-                  .ToListAsync();
+            return await this.usersRepository.Get<User>(email);
         }
 
-        public async Task<TModel> Get<TModel>(Guid id)
+        public async Task<bool> Create(User user)
         {
-            return await this.db.Users
-                .Where(u => u.Id == id)
-                .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<TModel> Get<TModel>(string email)
-        {
-            return await this.db.Users
-                .Where(u => u.Email == email)
-                .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task Remove(Guid id)
-        {
-            var user = await this.db.Users.FindAsync(id);
-            this.db.Users.Remove(user);
-
-            await this.db.SaveChangesAsync();
+            return await this.usersRepository.Create<User>(user);
         }
     }
 }

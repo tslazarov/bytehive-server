@@ -53,6 +53,15 @@ namespace Bytehive.Data.Models
 
         public string UserExternalId { get; set; }
 
+        public Occupation Occupation { get; set; }
+
         public virtual ICollection<ScrapeRequest> ScrapeRequests { get; set; }
+
+        public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
+
+        public void AddRereshToken(string token, Guid userId, string remoteIpAddress, double daysToExpire = 5)
+        {
+            this.RefreshTokens.Add(new RefreshToken(Guid.NewGuid(), token, DateTime.UtcNow.AddDays(daysToExpire), userId, remoteIpAddress));
+        }
     }
 }

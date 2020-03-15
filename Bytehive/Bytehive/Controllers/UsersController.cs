@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Bytehive.Data.Models;
 using Bytehive.Services.Contracts;
+using Bytehive.Services.Contracts.Services;
 using Bytehive.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -14,6 +16,7 @@ using Newtonsoft.Json;
 namespace Bytehive.Controllers
 {
     [ApiController]
+    [Route("api/[controller]")]
     public class UsersController : Controller
     {
         private readonly IUsersService usersService;
@@ -27,9 +30,10 @@ namespace Bytehive.Controllers
         }
 
         [HttpGet]
-        public async Task<HttpResponseMessage> Get()
+        [Authorize(Policy = "ApiUser")]
+        public async Task<HttpContent> Get()
         {
-            var users = await this.usersService.GetAll<User>();
+            var users = await this.usersService.GetUser("test");
 
             return ResponseHelper.CreateJsonResponseMessage(users);
         }

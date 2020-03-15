@@ -4,14 +4,16 @@ using Bytehive.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bytehive.Data.Migrations
 {
     [DbContext(typeof(BytehiveDbContext))]
-    partial class BytehiveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200315102221_User_Occupation")]
+    partial class User_Occupation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,31 +67,6 @@ namespace Bytehive.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("faq_category");
-                });
-
-            modelBuilder.Entity("Bytehive.Data.Models.RefreshToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Expires")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("RemoteIpAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Token")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("refresh_token");
                 });
 
             modelBuilder.Entity("Bytehive.Data.Models.ScrapeRequest", b =>
@@ -182,15 +159,6 @@ namespace Bytehive.Data.Migrations
                     b.HasOne("Bytehive.Data.Models.FAQCategory", "Category")
                         .WithMany("FAQs")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Bytehive.Data.Models.RefreshToken", b =>
-                {
-                    b.HasOne("Bytehive.Data.Models.User", "User")
-                        .WithMany("RefreshTokens")
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

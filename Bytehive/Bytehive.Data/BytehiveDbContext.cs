@@ -26,6 +26,7 @@ namespace Bytehive.Data
             builder.Entity<FAQ>().ToTable("faq");
             builder.Entity<FAQCategory>().ToTable("faq_category");
             builder.Entity<ScrapeRequest>().ToTable("scrape_request");
+            builder.Entity<RefreshToken>().ToTable("refresh_token");
 
             builder
                 .Entity<User>()
@@ -36,6 +37,12 @@ namespace Bytehive.Data
                 .Entity<ScrapeRequest>()
                 .HasOne(sr => sr.User)
                 .WithMany(u => u.ScrapeRequests)
+                .HasForeignKey(sr => sr.UserId);
+
+            builder
+                .Entity<RefreshToken>()
+                .HasOne(sr => sr.User)
+                .WithMany(u => u.RefreshTokens)
                 .HasForeignKey(sr => sr.UserId);
 
             builder

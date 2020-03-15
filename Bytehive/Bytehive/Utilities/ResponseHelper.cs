@@ -12,14 +12,14 @@ namespace Bytehive.Utilities
     public class ResponseHelper
     {
 
-        public static HttpResponseMessage CreateJsonResponseMessage(object data)
+        public static HttpContent CreateJsonResponseMessage(object data)
         {
             HttpResponseMessage response = new HttpResponseMessage();
 
             response.Content = new StringContent(JsonConvert.SerializeObject(data));
             response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            return response;
+            return response.Content;
         }
     }
 }
