@@ -18,11 +18,11 @@ namespace Bytehive.Services.Authentication
         {
             return this.jwtTokenHandler.ValidateToken(token, new TokenValidationParameters
             {
-                ValidateAudience = false,
-                ValidateIssuer = false,
+                ValidateAudience = true,
+                ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
-                ValidateLifetime = false // we check expired tokens here
+                ValidateLifetime = true
             });
         }
     }

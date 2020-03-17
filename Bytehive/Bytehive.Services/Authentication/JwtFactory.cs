@@ -32,7 +32,8 @@ namespace Bytehive.Services.Authentication
                  new Claim(JwtRegisteredClaimNames.Jti, await this.jwtOptions.JtiGenerator()),
                  new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(this.jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
                  identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Rol),
-                 identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Id)
+                 identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Id),
+                 identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Email)
              };
 
             // Create the JWT security token and encode it.
@@ -47,11 +48,12 @@ namespace Bytehive.Services.Authentication
             return new AccessToken(this.jwtTokenHandler.WriteToken(jwt), (int)this.jwtOptions.ValidFor.TotalSeconds);
         }
 
-        private static ClaimsIdentity GenerateClaimsIdentity(string id, string userName)
+        private static ClaimsIdentity GenerateClaimsIdentity(string id, string email)
         {
-            return new ClaimsIdentity(new GenericIdentity(userName, "Token"), new[]
+            return new ClaimsIdentity(new GenericIdentity(email, "Token"), new[]
             {
                 new Claim(Constants.Strings.JwtClaimIdentifiers.Id, id),
+                new Claim(Constants.Strings.JwtClaimIdentifiers.Email, email),
                 new Claim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.Strings.JwtClaims.ApiAccess)
             });
         }

@@ -42,7 +42,7 @@ namespace Bytehive.Controllers
         [Route("signup")]
         public async Task<ActionResult> SignUp(SignupUserModel model)
         {
-            var existingUser = this.usersService.GetUser(model.Email);
+            var existingUser = await this.usersService.GetUser(model.Email);
 
             if(existingUser != null)
             {

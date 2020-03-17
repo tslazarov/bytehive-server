@@ -10,7 +10,9 @@ namespace Bytehive.Services.Utilities
         {
             public static class JwtClaimIdentifiers
             {
-                public const string Rol = "rol", Id = "id";
+                public const string Rol = "rol";
+                public const string Id = "id";
+                public const string Email = "email";
             }
 
             public static class JwtClaims
