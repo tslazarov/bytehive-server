@@ -8,6 +8,6 @@ namespace Bytehive.Services.Contracts
 {
     public interface IJwtFactory
     {
-        Task<AccessToken> GenerateEncodedToken(string id, string email);
+        Task<AccessToken> GenerateEncodedToken(string id, string email, string roles);
     }
 }

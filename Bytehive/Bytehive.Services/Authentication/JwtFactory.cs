@@ -22,16 +22,16 @@ namespace Bytehive.Services.Authentication
             ThrowIfInvalidOptions(this.jwtOptions);
         }
 
-        public async Task<AccessToken> GenerateEncodedToken(string id, string email)
+        public async Task<AccessToken> GenerateEncodedToken(string id, string email, string roles)
         {
-            var identity = GenerateClaimsIdentity(id, email);
+            var identity = GenerateClaimsIdentity(id, email, roles);
 
             var claims = new[]
             {
                  new Claim(JwtRegisteredClaimNames.Sub, email),
                  new Claim(JwtRegisteredClaimNames.Jti, await this.jwtOptions.JtiGenerator()),
                  new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(this.jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
-                 identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Rol),
+                 identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Role),
                  identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Id),
                  identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Email)
              };
@@ -48,13 +48,13 @@ namespace Bytehive.Services.Authentication
             return new AccessToken(this.jwtTokenHandler.WriteToken(jwt), (int)this.jwtOptions.ValidFor.TotalSeconds);
         }
 
-        private static ClaimsIdentity GenerateClaimsIdentity(string id, string email)
+        private static ClaimsIdentity GenerateClaimsIdentity(string id, string email, string roles)
         {
             return new ClaimsIdentity(new GenericIdentity(email, "Token"), new[]
             {
                 new Claim(Constants.Strings.JwtClaimIdentifiers.Id, id),
                 new Claim(Constants.Strings.JwtClaimIdentifiers.Email, email),
-                new Claim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.Strings.JwtClaims.ApiAccess)
+                new Claim(Constants.Strings.JwtClaimIdentifiers.Role, roles)
             });
         }
 

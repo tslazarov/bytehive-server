@@ -7,6 +7,7 @@ using Bytehive.Services.Contracts.Repository;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Dto;
 using Bytehive.Services.Utilities;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Bytehive.Services
@@ -14,15 +15,18 @@ namespace Bytehive.Services
     public class AccountService : IAccountService
     {
         private readonly IUsersRepository usersRepository;
+        private readonly IRolesRepository rolesRepository;
         private readonly ITokenFactory tokenFactory;
         private readonly IJwtFactory jwtFactory;
         private readonly IMapper mapper;
 
         public AccountService(IUsersRepository usersRepository,
+            IRolesRepository rolesRepository,
             ITokenFactory tokenFactory,
             IJwtFactory jwtFactory)
         {
             this.usersRepository = usersRepository;
+            this.rolesRepository = rolesRepository;
             this.tokenFactory = tokenFactory;
             this.jwtFactory = jwtFactory;
         }
@@ -43,8 +47,10 @@ namespace Bytehive.Services
                     user.AddRereshToken(refreshTokenValue, user.Id, remoteIpAddress, 7);
                     await this.usersRepository.Update<User>(user);
 
+                    var roleIds = user.UserRoles.Select(u => u.RoleId);
+                    var roles = (await this.rolesRepository.GetAll<Role>()).Where(r => roleIds.Contains(r.Id)).Select(r => r.Name);
 
-                    var accessToken = await this.jwtFactory.GenerateEncodedToken(user.Id.ToString(), user.Email);
+                    var accessToken = await this.jwtFactory.GenerateEncodedToken(user.Id.ToString(), user.Email, string.Join(", ", roles));
 
                     return new CombinedToken() { AccessToken = accessToken, RefreshToken = refreshToken };
                 }

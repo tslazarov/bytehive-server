@@ -14,6 +14,8 @@ namespace Bytehive.Data
 
         public DbSet<User> Users { get; set; }
 
+        public DbSet<Role> Roles { get; set; }
+
         public DbSet<ScrapeRequest> ScrapeRequests { get; set; }
 
         public DbSet<FAQ> FAQs { get; set; }
@@ -23,6 +25,8 @@ namespace Bytehive.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<User>().ToTable("user");
+            builder.Entity<UserRole>().ToTable("user_role");
+            builder.Entity<Role>().ToTable("role");
             builder.Entity<FAQ>().ToTable("faq");
             builder.Entity<FAQCategory>().ToTable("faq_category");
             builder.Entity<ScrapeRequest>().ToTable("scrape_request");
@@ -50,6 +54,22 @@ namespace Bytehive.Data
                 .HasOne(f => f.Category)
                 .WithMany(u => u.FAQs)
                 .HasForeignKey(f => f.CategoryId);
+
+            builder
+                .Entity<UserRole>()
+                .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+            builder
+                .Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId);
+
+            builder
+                .Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId);
 
             base.OnModelCreating(builder);
         }

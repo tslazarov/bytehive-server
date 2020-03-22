@@ -30,7 +30,7 @@ namespace Bytehive.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = "ApiUser")]
+        [Authorize(Policy = "User")]
         public async Task<HttpContent> Get()
         {
             var users = await this.usersService.GetUser("test");
