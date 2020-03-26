@@ -10,5 +10,7 @@ namespace Bytehive.Services.Contracts.Services
     public interface IAccountService
     {
         Task<CombinedToken> Authenticate(string email, string password, string remoteIpAddress);
+
+        Task<bool> Unauthenticate(Guid id);
     }
 }

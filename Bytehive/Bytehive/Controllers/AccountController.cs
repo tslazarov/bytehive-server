@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Bytehive.Data.Models;
@@ -90,7 +91,34 @@ namespace Bytehive.Controllers
         {
             var token = await this.accountService.Authenticate(model.Email, model.Password, model.RemoteIpAddress);
 
+            if(token == null)
+            {
+                return new JsonResult("Ivalid username or password") { StatusCode = StatusCodes.Status400BadRequest };
+            }
+
             return new JsonResult(token) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("signout")]
+        public async Task<ActionResult> SignOut()
+        {
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+            
+            if(identity != null)
+            {
+                Guid id;
+                
+                if(identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
+                {
+                    bool result = await this.accountService.Unauthenticate(id);
+
+                    return new JsonResult(result) { StatusCode = StatusCodes.Status200OK };
+                }
+            }
+
+            return new JsonResult(true) { StatusCode = StatusCodes.Status200OK };
         }
     }
 }
