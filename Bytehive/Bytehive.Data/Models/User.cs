@@ -12,14 +12,15 @@ namespace Bytehive.Data.Models
         {
         }
 
-        public User(Guid id, string email, string firstName, string lastName, bool isExternal)
+        public User(Guid id, string email, string firstName, string lastName, string provider)
         {
             this.Id = id;
             this.Email = email;
             this.FirstName = firstName;
             this.LastName = lastName;
-            this.IsExternal = isExternal;
+            this.Provider = provider;
             this.ScrapeRequests = new List<ScrapeRequest>();
+            this.RefreshTokens = new List<RefreshToken>();
         }
 
         [Key]
@@ -49,9 +50,7 @@ namespace Bytehive.Data.Models
 
         public string Image { get; set; }
 
-        public bool IsExternal { get; set; }
-
-        public string UserExternalId { get; set; }
+        public string Provider { get; set; }
 
         public Occupation Occupation { get; set; }
 
@@ -59,9 +58,11 @@ namespace Bytehive.Data.Models
 
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
 
-        public void AddRereshToken(string token, Guid userId, string remoteIpAddress, double daysToExpire = 5)
+        public virtual ICollection<UserRole> UserRoles { get; set; }
+
+        public void AddRefreshToken(Guid id, string token, Guid userId, string remoteIpAddress, double daysToExpire = 5)
         {
-            this.RefreshTokens.Add(new RefreshToken(Guid.NewGuid(), token, DateTime.UtcNow.AddDays(daysToExpire), userId, remoteIpAddress));
+            this.RefreshTokens.Add(new RefreshToken(id, token, DateTime.UtcNow.AddDays(daysToExpire), userId, remoteIpAddress));
         }
     }
 }

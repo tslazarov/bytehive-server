@@ -4,14 +4,16 @@ using Bytehive.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bytehive.Data.Migrations
 {
     [DbContext(typeof(BytehiveDbContext))]
-    partial class BytehiveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200322175111_User_Roles")]
+    partial class User_Roles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -164,6 +166,9 @@ namespace Bytehive.Data.Migrations
                     b.Property<string>("Image")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsExternal")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(30)")
                         .HasMaxLength(30);
@@ -171,20 +176,19 @@ namespace Bytehive.Data.Migrations
                     b.Property<int>("Occupation")
                         .HasColumnType("int");
 
-                    b.Property<string>("Provider")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("ResetCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Salt")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserExternalId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("Email", "Provider")
-                        .IsUnique()
-                        .HasFilter("[Provider] IS NOT NULL");
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("user");
                 });

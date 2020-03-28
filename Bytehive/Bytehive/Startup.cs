@@ -48,6 +48,9 @@ namespace Bytehive
                 .AddDbContext<BytehiveDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("BytehiveConnection")));
 
             services.AddTransient<IUsersRepository, UsersRepository>();
+            services.AddTransient<IRolesRepository, RolesRepository>();
+            services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddTransient<IUserRolesRepository, UserRolesRepository>();
 
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IUsersService, UsersService>();
@@ -104,7 +107,8 @@ namespace Bytehive
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("ApiUser", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Rol, Constants.Strings.JwtClaims.ApiAccess));
+                options.AddPolicy("User", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Role, Constants.Strings.JwtClaims.ApiUser));
+                options.AddPolicy("Administrator", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Role, Constants.Strings.JwtClaims.ApiAdministrator));
             });
         }
 
@@ -124,7 +128,7 @@ namespace Bytehive
             app.UseAuthorization();
 
             app.UseCors(
-                options => options.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200")
+                options => options.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200", "https://www.bytehive.com")
             );
 
             app.UseEndpoints(endpoints =>

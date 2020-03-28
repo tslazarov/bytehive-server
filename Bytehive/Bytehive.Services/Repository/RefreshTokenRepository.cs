@@ -13,49 +13,38 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Services.Repository
 {
-    public class UsersRepository : IUsersRepository
+    public class RefreshTokenRepository : IRefreshTokenRepository
     {
         private readonly BytehiveDbContext db;
         private readonly IMapper mapper;
 
-        public UsersRepository(BytehiveDbContext db,
+        public RefreshTokenRepository(BytehiveDbContext db,
             IMapper mapper)
         {
             this.db = db;
             this.mapper = mapper;
         }
 
-        public async Task<IEnumerable<TModel>> GetAll<TModel>(string providerName)
+        public async Task<IEnumerable<TModel>> GetAll<TModel>()
         {
-            return await this.db.Users
-                  .Where(u => u.Provider == providerName)
+            return await this.db.RefreshTokens
                   .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                   .ToListAsync();
         }
 
-        public async Task<TModel> Get<TModel>(Guid id, string providerName)
+        public async Task<TModel> Get<TModel>(Guid id)
         {
-            return await this.db.Users
-                .Where(u => u.Provider == providerName)
+            return await this.db.RefreshTokens
                 .Where(u => u.Id == id)
                 .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<TModel> Get<TModel>(string email, string providerName)
+        public async Task<bool> Create<TModel>(TModel refreshToken)
         {
-            return await this.db.Users
-                .Where(u => u.Provider == providerName)
-                .Where(u => u.Email == email)
-                .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<bool> Create<TModel>(TModel user)
-        {
-            if (user is User)
+            if (refreshToken is RefreshToken)
             {
-                this.db.Users.Add(user as User);
+                this.db.RefreshTokens.Add(refreshToken as RefreshToken);
 
                 await this.db.SaveChangesAsync();
 
@@ -65,12 +54,12 @@ namespace Bytehive.Services.Repository
             return false;
         }
 
-        public async Task<bool> Update<TModel>(TModel user)
+        public async Task<bool> Update<TModel>(TModel refreshToken)
         {
-            if (user is User)
+            if (refreshToken is User)
             {
-                this.db.Entry(user).State = EntityState.Modified;
-                this.db.Users.Update(user as User);
+                this.db.Entry(refreshToken).State = EntityState.Modified;
+                this.db.RefreshTokens.Update(refreshToken as RefreshToken);
 
                 await this.db.SaveChangesAsync();
 
@@ -82,8 +71,8 @@ namespace Bytehive.Services.Repository
 
         public async Task Remove(Guid id)
         {
-            var user = await this.db.Users.FindAsync(id);
-            this.db.Users.Remove(user);
+            var refreshToken = await this.db.RefreshTokens.FindAsync(id);
+            this.db.RefreshTokens.Remove(refreshToken);
 
             await this.db.SaveChangesAsync();
         }

@@ -13,49 +13,46 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Services.Repository
 {
-    public class UsersRepository : IUsersRepository
+    public class RolesRepository : IRolesRepository
     {
         private readonly BytehiveDbContext db;
         private readonly IMapper mapper;
 
-        public UsersRepository(BytehiveDbContext db,
+        public RolesRepository(BytehiveDbContext db,
             IMapper mapper)
         {
             this.db = db;
             this.mapper = mapper;
         }
 
-        public async Task<IEnumerable<TModel>> GetAll<TModel>(string providerName)
+        public async Task<IEnumerable<TModel>> GetAll<TModel>()
         {
-            return await this.db.Users
-                  .Where(u => u.Provider == providerName)
+            return await this.db.Roles
                   .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                   .ToListAsync();
         }
 
-        public async Task<TModel> Get<TModel>(Guid id, string providerName)
+        public async Task<TModel> Get<TModel>(Guid id)
         {
-            return await this.db.Users
-                .Where(u => u.Provider == providerName)
+            return await this.db.Roles
                 .Where(u => u.Id == id)
                 .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<TModel> Get<TModel>(string email, string providerName)
+        public async Task<TModel> Get<TModel>(string name)
         {
-            return await this.db.Users
-                .Where(u => u.Provider == providerName)
-                .Where(u => u.Email == email)
+            return await this.db.Roles
+                .Where(u => u.Name == name)
                 .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<bool> Create<TModel>(TModel user)
+        public async Task<bool> Create<TModel>(TModel role)
         {
-            if (user is User)
+            if (role is Role)
             {
-                this.db.Users.Add(user as User);
+                this.db.Roles.Add(role as Role);
 
                 await this.db.SaveChangesAsync();
 
@@ -65,12 +62,12 @@ namespace Bytehive.Services.Repository
             return false;
         }
 
-        public async Task<bool> Update<TModel>(TModel user)
+        public async Task<bool> Update<TModel>(TModel role)
         {
-            if (user is User)
+            if (role is Role)
             {
-                this.db.Entry(user).State = EntityState.Modified;
-                this.db.Users.Update(user as User);
+                this.db.Entry(role).State = EntityState.Modified;
+                this.db.Roles.Update(role as Role);
 
                 await this.db.SaveChangesAsync();
 
@@ -82,8 +79,8 @@ namespace Bytehive.Services.Repository
 
         public async Task Remove(Guid id)
         {
-            var user = await this.db.Users.FindAsync(id);
-            this.db.Users.Remove(user);
+            var role = await this.db.Roles.FindAsync(id);
+            this.db.Roles.Remove(role);
 
             await this.db.SaveChangesAsync();
         }

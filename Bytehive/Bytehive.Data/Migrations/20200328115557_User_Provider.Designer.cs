@@ -4,14 +4,16 @@ using Bytehive.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bytehive.Data.Migrations
 {
     [DbContext(typeof(BytehiveDbContext))]
-    partial class BytehiveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200328115557_User_Provider")]
+    partial class User_Provider
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -172,7 +174,7 @@ namespace Bytehive.Data.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Provider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ResetCode")
                         .HasColumnType("nvarchar(max)");
@@ -182,9 +184,8 @@ namespace Bytehive.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email", "Provider")
-                        .IsUnique()
-                        .HasFilter("[Provider] IS NOT NULL");
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("user");
                 });

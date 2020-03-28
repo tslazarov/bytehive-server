@@ -11,6 +11,9 @@ namespace Bytehive.Services.Infrastructure
         public ServiceMappingProfile()
         {
             this.CreateMap<User, User>();
+            this.CreateMap<Role, Role>();
+            this.CreateMap<RefreshToken, RefreshToken>();
+            this.CreateMap<UserRole, UserRole>();
         }
     }
 }
