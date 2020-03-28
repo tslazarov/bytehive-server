@@ -12,6 +12,8 @@ namespace Bytehive.Services.Infrastructure
         {
             this.CreateMap<User, User>();
             this.CreateMap<Role, Role>();
+            this.CreateMap<RefreshToken, RefreshToken>();
+            this.CreateMap<UserRole, UserRole>();
         }
     }
 }

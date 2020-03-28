@@ -49,6 +49,8 @@ namespace Bytehive
 
             services.AddTransient<IUsersRepository, UsersRepository>();
             services.AddTransient<IRolesRepository, RolesRepository>();
+            services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddTransient<IUserRolesRepository, UserRolesRepository>();
 
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IUsersService, UsersService>();

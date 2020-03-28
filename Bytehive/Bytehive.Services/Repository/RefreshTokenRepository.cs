@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Services.Repository
 {
-    public class RolesRepository : IRolesRepository
+    public class RefreshTokenRepository : IRefreshTokenRepository
     {
         private readonly BytehiveDbContext db;
         private readonly IMapper mapper;
 
-        public RolesRepository(BytehiveDbContext db,
+        public RefreshTokenRepository(BytehiveDbContext db,
             IMapper mapper)
         {
             this.db = db;
@@ -27,32 +27,24 @@ namespace Bytehive.Services.Repository
 
         public async Task<IEnumerable<TModel>> GetAll<TModel>()
         {
-            return await this.db.Roles
+            return await this.db.RefreshTokens
                   .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                   .ToListAsync();
         }
 
         public async Task<TModel> Get<TModel>(Guid id)
         {
-            return await this.db.Roles
+            return await this.db.RefreshTokens
                 .Where(u => u.Id == id)
                 .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<TModel> Get<TModel>(string name)
+        public async Task<bool> Create<TModel>(TModel refreshToken)
         {
-            return await this.db.Roles
-                .Where(u => u.Name == name)
-                .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
-                .FirstOrDefaultAsync();
-        }
-
-        public async Task<bool> Create<TModel>(TModel role)
-        {
-            if (role is Role)
+            if (refreshToken is RefreshToken)
             {
-                this.db.Roles.Add(role as Role);
+                this.db.RefreshTokens.Add(refreshToken as RefreshToken);
 
                 await this.db.SaveChangesAsync();
 
@@ -62,12 +54,12 @@ namespace Bytehive.Services.Repository
             return false;
         }
 
-        public async Task<bool> Update<TModel>(TModel role)
+        public async Task<bool> Update<TModel>(TModel refreshToken)
         {
-            if (role is Role)
+            if (refreshToken is User)
             {
-                this.db.Entry(role).State = EntityState.Modified;
-                this.db.Roles.Update(role as Role);
+                this.db.Entry(refreshToken).State = EntityState.Modified;
+                this.db.RefreshTokens.Update(refreshToken as RefreshToken);
 
                 await this.db.SaveChangesAsync();
 
@@ -79,8 +71,8 @@ namespace Bytehive.Services.Repository
 
         public async Task Remove(Guid id)
         {
-            var role = await this.db.Roles.FindAsync(id);
-            this.db.Roles.Remove(role);
+            var refreshToken = await this.db.RefreshTokens.FindAsync(id);
+            this.db.RefreshTokens.Remove(refreshToken);
 
             await this.db.SaveChangesAsync();
         }

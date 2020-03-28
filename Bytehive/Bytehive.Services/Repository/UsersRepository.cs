@@ -25,24 +25,27 @@ namespace Bytehive.Services.Repository
             this.mapper = mapper;
         }
 
-        public async Task<IEnumerable<TModel>> GetAll<TModel>()
+        public async Task<IEnumerable<TModel>> GetAll<TModel>(string providerName)
         {
             return await this.db.Users
+                  .Where(u => u.Provider == providerName)
                   .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                   .ToListAsync();
         }
 
-        public async Task<TModel> Get<TModel>(Guid id)
+        public async Task<TModel> Get<TModel>(Guid id, string providerName)
         {
             return await this.db.Users
+                .Where(u => u.Provider == providerName)
                 .Where(u => u.Id == id)
                 .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<TModel> Get<TModel>(string email)
+        public async Task<TModel> Get<TModel>(string email, string providerName)
         {
             return await this.db.Users
+                .Where(u => u.Provider == providerName)
                 .Where(u => u.Email == email)
                 .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();

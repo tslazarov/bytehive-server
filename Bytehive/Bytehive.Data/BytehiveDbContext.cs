@@ -18,6 +18,10 @@ namespace Bytehive.Data
 
         public DbSet<ScrapeRequest> ScrapeRequests { get; set; }
 
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+
+        public DbSet<UserRole> UserRoles { get; set; }
+
         public DbSet<FAQ> FAQs { get; set; }
 
         public DbSet<FAQCategory> FAQCategories { get; set; }
@@ -34,7 +38,7 @@ namespace Bytehive.Data
 
             builder
                 .Entity<User>()
-                .HasIndex(u => u.Email)
+                .HasIndex(u => new { u.Email, u.Provider })
                 .IsUnique();
 
             builder

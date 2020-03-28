@@ -43,7 +43,7 @@ namespace Bytehive.Controllers
         [Route("signup")]
         public async Task<ActionResult> SignUp(SignupUserModel model)
         {
-            var existingUser = await this.usersService.GetUser(model.Email);
+            var existingUser = await this.usersService.GetUser(model.Email, Constants.Strings.UserProviders.DefaultProvider);
 
             if(existingUser != null)
             {
@@ -59,27 +59,14 @@ namespace Bytehive.Controllers
             user.HashedPassword = hashedPassword;
             user.Provider = "Default";
 
-            bool userCreated = false;
+            var userCreated = await this.usersService.Create(user);
+            var roleAssigned = await this.usersService.AssignRole(user.Id, Constants.Strings.Roles.User);
 
-            try
+            if (userCreated && roleAssigned)
             {
-                userCreated = await this.usersService.Create(user);
-            }
-            catch(Exception e)
-            {
-                if(e.InnerException != null && e.InnerException is SqlException)
-                {
-                    var sqlException = e.InnerException as SqlException;
+                var token = await this.accountService.AuthenticateLocal(user, model.Email, model.Password, model.RemoteIpAddress);
 
-                    if(sqlException.Number == 2601 && sqlException.Message.ToLower().Contains("email"))
-                    {
-                    }
-                }
-            }
-
-            if (userCreated)
-            {
-                return new JsonResult("The user was created.") { StatusCode = StatusCodes.Status201Created };
+                return new JsonResult(token) { StatusCode = StatusCodes.Status200OK };
             }
 
             return new JsonResult("An error occured during user creation.") { StatusCode = StatusCodes.Status500InternalServerError };
@@ -90,7 +77,7 @@ namespace Bytehive.Controllers
         [Route("signin")]
         public async Task<ActionResult> SignIn(SigninUserModel model)
         {
-            var token = await this.accountService.Authenticate(model.Email, model.Password, model.RemoteIpAddress);
+            var token = await this.accountService.AuthenticateLocal(null, model.Email, model.Password, model.RemoteIpAddress);
 
             if(token == null)
             {
@@ -99,6 +86,22 @@ namespace Bytehive.Controllers
 
             return new JsonResult(token) { StatusCode = StatusCodes.Status200OK };
         }
+
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("signinExternal")]
+        public async Task<ActionResult> SignInExternal(SigninExternalUserModel model)
+        {
+            var token = await this.accountService.AuthenticateExternal(model.Email, model.FirstName, model.LastName, model.Occupation, model.DefaultLanguage, model.Provider, model.RemoteIpAddress, model.Token);
+
+            if (token == null)
+            {
+                return new JsonResult("Ivalid username or password") { StatusCode = StatusCodes.Status400BadRequest };
+            }
+
+            return new JsonResult(token) { StatusCode = StatusCodes.Status200OK };
+        }
+
 
         [HttpGet]
         [AllowAnonymous]
@@ -111,9 +114,11 @@ namespace Bytehive.Controllers
             {
                 Guid id;
                 
-                if(identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
+                if(identity.FindFirst("provider") != null && identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
                 {
-                    bool result = await this.accountService.Unauthenticate(id);
+                    string providerName = identity.FindFirst("provider").Value;
+
+                    bool result = await this.accountService.Unauthenticate(id, providerName);
 
                     return new JsonResult(result) { StatusCode = StatusCodes.Status200OK };
                 }

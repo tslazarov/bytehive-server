@@ -23,6 +23,19 @@ namespace Bytehive.Services.Utilities
                 public const string ApiUser = "User";
                 public const string ApiAdministrator = "Administrator";
             }
+
+            public static class UserProviders
+            {
+                public const string DefaultProvider = "Default";
+                public const string FacebookProvider = "Facebook";
+                public const string GoogleProvider = "Google";
+            }
+
+            public static class Roles
+            {
+                public const string User = "User";
+                public const string Administrator = "Administrator";
+            }
         }
     }
 }
