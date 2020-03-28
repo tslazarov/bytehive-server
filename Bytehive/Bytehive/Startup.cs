@@ -126,7 +126,7 @@ namespace Bytehive
             app.UseAuthorization();
 
             app.UseCors(
-                options => options.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200")
+                options => options.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200", "https://www.bytehive.com")
             );
 
             app.UseEndpoints(endpoints =>

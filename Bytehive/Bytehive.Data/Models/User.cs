@@ -12,13 +12,13 @@ namespace Bytehive.Data.Models
         {
         }
 
-        public User(Guid id, string email, string firstName, string lastName, bool isExternal)
+        public User(Guid id, string email, string firstName, string lastName, string provider)
         {
             this.Id = id;
             this.Email = email;
             this.FirstName = firstName;
             this.LastName = lastName;
-            this.IsExternal = isExternal;
+            this.Provider = provider;
             this.ScrapeRequests = new List<ScrapeRequest>();
         }
 
@@ -49,9 +49,7 @@ namespace Bytehive.Data.Models
 
         public string Image { get; set; }
 
-        public bool IsExternal { get; set; }
-
-        public string UserExternalId { get; set; }
+        public string Provider { get; set; }
 
         public Occupation Occupation { get; set; }
 

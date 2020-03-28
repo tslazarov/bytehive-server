@@ -52,7 +52,7 @@ namespace Bytehive.Services
                     var roleIds = user.UserRoles.Select(u => u.RoleId);
                     var roles = (await this.rolesRepository.GetAll<Role>()).Where(r => roleIds.Contains(r.Id)).Select(r => r.Name);
 
-                    var accessToken = await this.jwtFactory.GenerateEncodedToken(user.Id.ToString(), user.Email, string.Join(", ", roles));
+                    var accessToken = await this.jwtFactory.GenerateEncodedToken(user, string.Join(", ", roles));
 
                     return new CombinedToken() { AccessToken = accessToken, RefreshToken = refreshToken };
                 }

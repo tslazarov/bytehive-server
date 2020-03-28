@@ -57,6 +57,7 @@ namespace Bytehive.Controllers
 
             user.Salt = salt;
             user.HashedPassword = hashedPassword;
+            user.Provider = "Default";
 
             bool userCreated = false;
 

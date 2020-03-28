@@ -1,4 +1,5 @@
-﻿using Bytehive.Services.Dto;
+﻿using Bytehive.Data.Models;
+using Bytehive.Services.Dto;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +9,6 @@ namespace Bytehive.Services.Contracts
 {
     public interface IJwtFactory
     {
-        Task<AccessToken> GenerateEncodedToken(string id, string email, string roles);
+        Task<AccessToken> GenerateEncodedToken(User user, string roles);
     }
 }

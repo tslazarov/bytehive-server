@@ -13,6 +13,8 @@ namespace Bytehive.Services.Utilities
                 public const string Role = "role";
                 public const string Id = "id";
                 public const string Email = "email";
+                public const string Language = "language";
+                public const string Provider = "provider";
             }
 
             public static class JwtClaims
