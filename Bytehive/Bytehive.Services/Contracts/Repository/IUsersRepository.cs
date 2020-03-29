@@ -8,6 +8,8 @@ namespace Bytehive.Services.Contracts.Repository
 {
     public interface IUsersRepository
     {
+        Task<IEnumerable<TModel>> GetAll<TModel>();
+
         Task<IEnumerable<TModel>> GetAll<TModel>(string providerName);
  
         Task<TModel> Get<TModel>(Guid userId);

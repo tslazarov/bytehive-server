@@ -1,23 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Bytehive.Data.Models;
 using Bytehive.Models.Account;
-using Bytehive.Services.Contracts;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Utilities;
-using Bytehive.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
+using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Bytehive.Controllers
 {
@@ -57,7 +48,6 @@ namespace Bytehive.Controllers
 
             user.Salt = salt;
             user.HashedPassword = hashedPassword;
-            user.Provider = "Default";
 
             var userCreated = await this.usersService.Create(user);
             var roleAssigned = await this.usersService.AssignRole(user.Id, Constants.Strings.Roles.User);

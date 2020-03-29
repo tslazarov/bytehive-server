@@ -18,7 +18,7 @@ namespace Bytehive.Data.Models
 
         public int MyProperty { get; set; }
 
-        public virtual ICollection<FAQ> FAQs { get; set; }
+        public virtual ICollection<FAQ> FAQs { get; set; } = new List<FAQ>();
 
     }
 }

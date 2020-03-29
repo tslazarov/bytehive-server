@@ -25,6 +25,13 @@ namespace Bytehive.Services.Repository
             this.mapper = mapper;
         }
 
+        public async Task<IEnumerable<TModel>> GetAll<TModel>()
+        {
+            return await this.db.Users
+                  .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
+                  .ToListAsync();
+        }
+
         public async Task<IEnumerable<TModel>> GetAll<TModel>(string providerName)
         {
             return await this.db.Users

@@ -103,7 +103,8 @@ namespace Bytehive.Services
                     user = new User(Guid.NewGuid(), email, firstName, lastName, providerName);
                     user.Occupation = (Occupation)occupation;
                     user.DefaultLanguage = (Language)defaultLanguage;
-                    
+                    user.RegistrationDate = DateTime.Now;
+
                     userCreated = await this.usersRepository.Create(user);
                     roleAssigned = await this.AssignRole(user.Id, Constants.Strings.Roles.User);
                 }
