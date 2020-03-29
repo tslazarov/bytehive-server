@@ -40,7 +40,7 @@ namespace Bytehive.Services
             this.externalTokenValidator = externalTokenValidator;
         }
 
-        public async Task<CombinedToken> AuthenticateLocal(User user, string email, string password, string remoteIpAddress)
+        public async Task<CombinedToken> AuthenticateLocal(User user, string email, string password)
         {
             if(user == null)
             {
@@ -55,7 +55,7 @@ namespace Bytehive.Services
                 {
                     var refreshTokenValue = this.tokenFactory.GenerateToken();
                     var refreshToken = new Dto.RefreshToken(refreshTokenValue);
-                    var refreshTokenDto = new Data.Models.RefreshToken(Guid.NewGuid(), refreshTokenValue, DateTime.UtcNow.AddDays(2), user.Id, remoteIpAddress);
+                    var refreshTokenDto = new Data.Models.RefreshToken(Guid.NewGuid(), refreshTokenValue, DateTime.UtcNow.AddDays(2), user.Id);
 
                     var refreshTokenCreated = await this.refreshTokenRepository.Create(refreshTokenDto);
 
@@ -78,7 +78,7 @@ namespace Bytehive.Services
             return null;
         }
 
-        public async Task<CombinedToken> AuthenticateExternal(string email, string firstName, string lastName, int occupation, int defaultLanguage, string providerName, string remoteIpAddress, string token)
+        public async Task<CombinedToken> AuthenticateExternal(string email, string firstName, string lastName, int occupation, int defaultLanguage, string providerName, string token)
         {
             bool externalValidated = false;
 
@@ -112,7 +112,42 @@ namespace Bytehive.Services
                 {
                     var refreshTokenValue = this.tokenFactory.GenerateToken();
                     var refreshToken = new Dto.RefreshToken(refreshTokenValue);
-                    var refreshTokenDto = new Data.Models.RefreshToken(Guid.NewGuid(), refreshTokenValue, DateTime.UtcNow.AddDays(2), user.Id, remoteIpAddress);
+                    var refreshTokenDto = new Data.Models.RefreshToken(Guid.NewGuid(), refreshTokenValue, DateTime.UtcNow.AddDays(2), user.Id);
+
+                    var refreshTokenCreated = await this.refreshTokenRepository.Create(refreshTokenDto);
+
+                    if (refreshTokenCreated)
+                    {
+                        user.RefreshTokens.Add(refreshTokenDto);
+
+                        await this.usersRepository.Update(user);
+                    }
+
+                    var roleIds = user.UserRoles.Select(u => u.RoleId);
+                    var roles = (await this.rolesRepository.GetAll<Role>()).Where(r => roleIds.Contains(r.Id)).Select(r => r.Name);
+
+                    var accessToken = await this.jwtFactory.GenerateEncodedToken(user, string.Join(", ", roles));
+
+                    return new CombinedToken() { AccessToken = accessToken, RefreshToken = refreshToken };
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<CombinedToken> RefreshToken(string currentRefreshToken)
+        {
+            var token = await this.refreshTokenRepository.Get<Data.Models.RefreshToken>(currentRefreshToken);
+
+            if (token != null && token.Active)
+            {
+                var user = await this.usersRepository.Get<User>(token.UserId);
+
+                if(user != null)
+                {
+                    var refreshTokenValue = this.tokenFactory.GenerateToken();
+                    var refreshToken = new Dto.RefreshToken(refreshTokenValue);
+                    var refreshTokenDto = new Data.Models.RefreshToken(Guid.NewGuid(), refreshTokenValue, DateTime.UtcNow.AddDays(2), token.UserId);
 
                     var refreshTokenCreated = await this.refreshTokenRepository.Create(refreshTokenDto);
 
@@ -138,7 +173,7 @@ namespace Bytehive.Services
 
         public async Task<bool> Unauthenticate(Guid id, string providerName)
         {
-            var user = await this.usersRepository.Get<User>(id, providerName);
+            var user = await this.usersRepository.Get<User>(id);
 
             if (user != null)
             {

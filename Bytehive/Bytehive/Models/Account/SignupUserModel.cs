@@ -20,7 +20,5 @@ namespace Bytehive.Models.Account
         public int Occupation { get; set; }
 
         public int DefaultLanguage { get; set; }
-
-        public string RemoteIpAddress { get; set; }
     }
 }

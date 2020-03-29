@@ -33,10 +33,9 @@ namespace Bytehive.Services.Repository
                   .ToListAsync();
         }
 
-        public async Task<TModel> Get<TModel>(Guid id, string providerName)
+        public async Task<TModel> Get<TModel>(Guid id)
         {
             return await this.db.Users
-                .Where(u => u.Provider == providerName)
                 .Where(u => u.Id == id)
                 .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();

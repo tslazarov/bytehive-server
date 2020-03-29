@@ -60,9 +60,9 @@ namespace Bytehive.Data.Models
 
         public virtual ICollection<UserRole> UserRoles { get; set; }
 
-        public void AddRefreshToken(Guid id, string token, Guid userId, string remoteIpAddress, double daysToExpire = 5)
+        public void AddRefreshToken(Guid id, string token, Guid userId, double daysToExpire = 5)
         {
-            this.RefreshTokens.Add(new RefreshToken(id, token, DateTime.UtcNow.AddDays(daysToExpire), userId, remoteIpAddress));
+            this.RefreshTokens.Add(new RefreshToken(id, token, DateTime.UtcNow.AddDays(daysToExpire), userId));
         }
     }
 }

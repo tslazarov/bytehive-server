@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Bytehive.Services.AppConfig;
 using Bytehive.Services.Contracts;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 
 namespace Bytehive.Services.Authentication
 {
@@ -24,7 +25,7 @@ namespace Bytehive.Services.Authentication
 
             var content = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode && content.Contains(appConfiguration.FacebookAppId))
             {
                 return true;
             }
@@ -38,7 +39,7 @@ namespace Bytehive.Services.Authentication
 
             var content = await response.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode)
+            if (response.IsSuccessStatusCode && content.Contains(appConfiguration.GoogleClientId))
             {
                 return true;
             }
