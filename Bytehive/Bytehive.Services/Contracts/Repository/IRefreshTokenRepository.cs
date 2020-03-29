@@ -10,7 +10,7 @@ namespace Bytehive.Services.Contracts.Repository
     {
         Task<IEnumerable<TModel>> GetAll<TModel>();
  
-        Task<TModel> Get<TModel>(Guid tokenId);
+        Task<TModel> Get<TModel>(string tokenValue);
 
         Task<bool> Create<TModel>(TModel token);
 

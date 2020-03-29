@@ -64,7 +64,7 @@ namespace Bytehive.Controllers
 
             if (userCreated && roleAssigned)
             {
-                var token = await this.accountService.AuthenticateLocal(user, model.Email, model.Password, model.RemoteIpAddress);
+                var token = await this.accountService.AuthenticateLocal(user, model.Email, model.Password);
 
                 return new JsonResult(token) { StatusCode = StatusCodes.Status200OK };
             }
@@ -77,7 +77,7 @@ namespace Bytehive.Controllers
         [Route("signin")]
         public async Task<ActionResult> SignIn(SigninUserModel model)
         {
-            var token = await this.accountService.AuthenticateLocal(null, model.Email, model.Password, model.RemoteIpAddress);
+            var token = await this.accountService.AuthenticateLocal(null, model.Email, model.Password);
 
             if(token == null)
             {
@@ -89,10 +89,25 @@ namespace Bytehive.Controllers
 
         [HttpPost]
         [AllowAnonymous]
+        [Route("refreshtoken")]
+        public async Task<ActionResult> RefreshToken(RefreshTokenModel model)
+        {
+            var token = await this.accountService.RefreshToken(model.Token);
+
+            if (token == null)
+            {
+                return new JsonResult("Refresh token has expired") { StatusCode = StatusCodes.Status400BadRequest };
+            }
+
+            return new JsonResult(token) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
         [Route("signinExternal")]
         public async Task<ActionResult> SignInExternal(SigninExternalUserModel model)
         {
-            var token = await this.accountService.AuthenticateExternal(model.Email, model.FirstName, model.LastName, model.Occupation, model.DefaultLanguage, model.Provider, model.RemoteIpAddress, model.Token);
+            var token = await this.accountService.AuthenticateExternal(model.Email, model.FirstName, model.LastName, model.Occupation, model.DefaultLanguage, model.Provider, model.Token);
 
             if (token == null)
             {

@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Models.Account
 {
-    public class SigninUserModel
+    public class RefreshTokenModel
     {
-        public string Email { get; set; }
-     
-        public string Password { get; set; }
+        public string Token { get; set; }
     }
 }

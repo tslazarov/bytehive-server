@@ -32,10 +32,10 @@ namespace Bytehive.Services.Repository
                   .ToListAsync();
         }
 
-        public async Task<TModel> Get<TModel>(Guid id)
+        public async Task<TModel> Get<TModel>(string tokenValue)
         {
             return await this.db.RefreshTokens
-                .Where(u => u.Id == id)
+                .Where(u => u.Token == tokenValue)
                 .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
         }
