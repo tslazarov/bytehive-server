@@ -44,6 +44,11 @@ namespace Bytehive.Services
             return await this.usersRepository.Create<User>(user);
         }
 
+        public async Task<bool> Update(User user)
+        {
+            return await this.usersRepository.Update<User>(user);
+        }
+
         public async Task<bool> Delete(User user)
         {
             return await this.usersRepository.Delete(user.Id);

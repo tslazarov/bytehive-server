@@ -11,6 +11,7 @@ using AutoMapper;
 using Bytehive.Controllers;
 using Bytehive.Data;
 using Bytehive.Models.Settings;
+using Bytehive.Notifications;
 using Bytehive.Services;
 using Bytehive.Services.Authentication;
 using Bytehive.Services.Contracts;
@@ -56,6 +57,8 @@ namespace Bytehive
 
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IUsersService, UsersService>();
+
+            services.AddTransient<ISendGridSender, SendGridSender>();
 
             services.AddAutoMapper(typeof(IUsersRepository).Assembly, typeof(AccountController).Assembly);
 
