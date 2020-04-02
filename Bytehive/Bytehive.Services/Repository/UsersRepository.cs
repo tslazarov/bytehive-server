@@ -86,12 +86,20 @@ namespace Bytehive.Services.Repository
             return false;
         }
 
-        public async Task Remove(Guid id)
+        public async Task<bool> Delete(Guid id)
         {
             var user = await this.db.Users.FindAsync(id);
-            this.db.Users.Remove(user);
 
-            await this.db.SaveChangesAsync();
+            if (user != null)
+            {
+                this.db.Users.Remove(user);
+                await this.db.SaveChangesAsync();
+
+                return true;
+
+            }
+
+            return false;
         }
     }
 }

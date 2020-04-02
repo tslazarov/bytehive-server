@@ -23,10 +23,10 @@ namespace Bytehive.Services
             this.rolesRepository = rolesRepository;
             this.userRolesRepository = userRolesRepository;
         }
-
-        public async Task<IEnumerable<TModel>> GetUsers<TModel>()
+        
+        public async Task<User> GetUser(Guid userId)
         {
-            return await this.usersRepository.GetAll<TModel>();
+            return await this.usersRepository.Get<User>(userId);
         }
 
         public async Task<User> GetUser(string email, string providerName)
@@ -34,9 +34,19 @@ namespace Bytehive.Services
             return await this.usersRepository.Get<User>(email, providerName);
         }
 
+        public async Task<IEnumerable<TModel>> GetUsers<TModel>()
+        {
+            return await this.usersRepository.GetAll<TModel>();
+        }
+
         public async Task<bool> Create(User user)
         {
             return await this.usersRepository.Create<User>(user);
+        }
+
+        public async Task<bool> Delete(User user)
+        {
+            return await this.usersRepository.Delete(user.Id);
         }
 
         public async Task<bool> AssignRole(Guid userId, string roleName)

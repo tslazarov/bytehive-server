@@ -40,10 +40,32 @@ namespace Bytehive.Controllers
         public async Task<ActionResult> All()
         {
             var users = await this.usersService.GetUsers<UserListViewModel>();
-            //var usersList = await users.ProjectTo<UserListViewModel>(this.mapper.ConfigurationProvider)
-            //    .ToListAsync();
 
             return new JsonResult(users) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpDelete]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("delete")]
+        public async Task<ActionResult> Delete(string id)
+        {
+            Guid parsedId;
+            bool deleted = false;
+
+            if (Guid.TryParse(id, out parsedId))
+            {
+                User user = await this.usersService.GetUser(parsedId);
+
+                if(user != null)
+                {
+                    deleted = await this.usersService.Delete(user);
+                
+                }
+            }
+
+            var statusCode = deleted ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest;
+
+            return new JsonResult(deleted) { StatusCode = statusCode };
         }
 
         [HttpGet]

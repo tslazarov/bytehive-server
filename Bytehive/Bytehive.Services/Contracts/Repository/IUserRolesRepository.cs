@@ -11,6 +11,6 @@ namespace Bytehive.Services.Contracts.Repository
 
         Task<bool> Create<TModel>(TModel userRole);
 
-        Task Remove(Guid roleId, Guid userId);
+        Task Delete(Guid roleId, Guid userId);
     }
 }

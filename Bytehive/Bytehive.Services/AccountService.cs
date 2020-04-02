@@ -180,7 +180,7 @@ namespace Bytehive.Services
             {
                 foreach (var token in user.RefreshTokens)
                 {
-                    await this.refreshTokenRepository.Remove(token.Id);
+                    await this.refreshTokenRepository.Delete(token.Id);
                 }
 
                 user.RefreshTokens.Clear();

@@ -18,7 +18,6 @@ using Bytehive.Services.Contracts.Repository;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Repository;
 using Bytehive.Services.Utilities;
-using Bytehive.Utilities.Requirements;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;

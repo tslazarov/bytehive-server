@@ -69,7 +69,7 @@ namespace Bytehive.Services.Repository
             return false;
         }
 
-        public async Task Remove(Guid id)
+        public async Task Delete(Guid id)
         {
             var refreshToken = await this.db.RefreshTokens.FindAsync(id);
             this.db.RefreshTokens.Remove(refreshToken);
