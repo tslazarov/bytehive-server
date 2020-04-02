@@ -77,7 +77,7 @@ namespace Bytehive.Services.Repository
             return false;
         }
 
-        public async Task Remove(Guid id)
+        public async Task Delete(Guid id)
         {
             var role = await this.db.Roles.FindAsync(id);
             this.db.Roles.Remove(role);

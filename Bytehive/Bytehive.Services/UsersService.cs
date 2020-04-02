@@ -4,6 +4,7 @@ using Bytehive.Services.Contracts.Repository;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Bytehive.Services
@@ -22,15 +23,30 @@ namespace Bytehive.Services
             this.rolesRepository = rolesRepository;
             this.userRolesRepository = userRolesRepository;
         }
+        
+        public async Task<User> GetUser(Guid userId)
+        {
+            return await this.usersRepository.Get<User>(userId);
+        }
 
         public async Task<User> GetUser(string email, string providerName)
         {
             return await this.usersRepository.Get<User>(email, providerName);
         }
 
+        public async Task<IEnumerable<TModel>> GetUsers<TModel>()
+        {
+            return await this.usersRepository.GetAll<TModel>();
+        }
+
         public async Task<bool> Create(User user)
         {
             return await this.usersRepository.Create<User>(user);
+        }
+
+        public async Task<bool> Delete(User user)
+        {
+            return await this.usersRepository.Delete(user.Id);
         }
 
         public async Task<bool> AssignRole(Guid userId, string roleName)

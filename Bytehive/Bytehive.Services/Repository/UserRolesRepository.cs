@@ -48,7 +48,7 @@ namespace Bytehive.Services.Repository
             return false;
         }
 
-        public async Task Remove(Guid roleId, Guid userId)
+        public async Task Delete(Guid roleId, Guid userId)
         {
             var role = await this.db.UserRoles.FirstOrDefaultAsync(ur => ur.RoleId == roleId && ur.UserId == userId);
 

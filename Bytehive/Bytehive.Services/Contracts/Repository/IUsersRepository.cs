@@ -8,6 +8,8 @@ namespace Bytehive.Services.Contracts.Repository
 {
     public interface IUsersRepository
     {
+        Task<IEnumerable<TModel>> GetAll<TModel>();
+
         Task<IEnumerable<TModel>> GetAll<TModel>(string providerName);
  
         Task<TModel> Get<TModel>(Guid userId);
@@ -18,6 +20,6 @@ namespace Bytehive.Services.Contracts.Repository
 
         Task<bool> Update<TModel>(TModel user);
 
-        Task Remove(Guid id);
+        Task<bool> Delete(Guid id);
     }
 }

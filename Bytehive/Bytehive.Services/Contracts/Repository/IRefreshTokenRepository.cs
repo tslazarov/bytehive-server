@@ -16,6 +16,6 @@ namespace Bytehive.Services.Contracts.Repository
 
         Task<bool> Update<TModel>(TModel token);
 
-        Task Remove(Guid id);
+        Task Delete(Guid id);
     }
 }

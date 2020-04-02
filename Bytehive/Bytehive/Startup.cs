@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
@@ -18,6 +19,7 @@ using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Repository;
 using Bytehive.Services.Utilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
@@ -57,10 +59,6 @@ namespace Bytehive
 
             services.AddAutoMapper(typeof(IUsersRepository).Assembly, typeof(AccountController).Assembly);
 
-            services.AddCors();
-
-            services.AddControllers();
-
             // configure strongly typed settings objects
             // Register the ConfigurationBuilder instance of AuthSettings
             var authSettings = Configuration.GetSection(nameof(AuthSettings));
@@ -93,6 +91,9 @@ namespace Bytehive
                 ClockSkew = TimeSpan.Zero
             };
 
+            services.AddCors();
+            services.AddControllers();
+
             services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -107,8 +108,8 @@ namespace Bytehive
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("User", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Role, Constants.Strings.JwtClaims.ApiUser));
-                options.AddPolicy("Administrator", policy => policy.RequireClaim(Constants.Strings.JwtClaimIdentifiers.Role, Constants.Strings.JwtClaims.ApiAdministrator));
+                options.AddPolicy(Constants.Strings.Roles.User, policy => policy.RequireClaim(ClaimTypes.Role, Constants.Strings.JwtClaims.ApiUser));
+                options.AddPolicy(Constants.Strings.Roles.Administrator, policy => policy.RequireClaim(ClaimTypes.Role, Constants.Strings.JwtClaims.ApiAdministrator));
             });
         }
 

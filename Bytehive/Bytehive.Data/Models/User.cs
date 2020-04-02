@@ -19,8 +19,6 @@ namespace Bytehive.Data.Models
             this.FirstName = firstName;
             this.LastName = lastName;
             this.Provider = provider;
-            this.ScrapeRequests = new List<ScrapeRequest>();
-            this.RefreshTokens = new List<RefreshToken>();
         }
 
         [Key]
@@ -54,11 +52,16 @@ namespace Bytehive.Data.Models
 
         public Occupation Occupation { get; set; }
 
-        public virtual ICollection<ScrapeRequest> ScrapeRequests { get; set; }
+        public DateTime RegistrationDate { get; set; }
 
-        public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
+        public virtual ICollection<ScrapeRequest> ScrapeRequests { get; set; } = new List<ScrapeRequest>();
 
-        public virtual ICollection<UserRole> UserRoles { get; set; }
+        public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+
+        public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+
+        [NotMapped]
+        public int TotalRequests => ScrapeRequests.Count;
 
         public void AddRefreshToken(Guid id, string token, Guid userId, double daysToExpire = 5)
         {
