@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bytehive.Notifications\Bytehive.Notifications.csproj" />
+    <ProjectReference Include="..\Bytehive.Scraper\Bytehive.Scraper.csproj" />
     <ProjectReference Include="..\Bytehive.Services\Bytehive.Services.csproj" />
   </ItemGroup>
 

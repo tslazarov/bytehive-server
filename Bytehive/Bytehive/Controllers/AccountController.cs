@@ -121,7 +121,7 @@ namespace Bytehive.Controllers
             return new JsonResult(true) { StatusCode = StatusCodes.Status200OK };
         }
 
-        [HttpPost]
+        [HttpPut]
         [AllowAnonymous]
         [Route("resetcode")]
         public async Task<ActionResult> ResetCode(ResetCodeModel model)
@@ -149,10 +149,40 @@ namespace Bytehive.Controllers
             return new JsonResult(true) { StatusCode = StatusCodes.Status200OK };
         }
 
+        [HttpPut]
+        [AllowAnonymous]
+        [Route("resetpassword")]
+        public async Task<ActionResult> ResetPassword(ResetPasswordModel model)
+        {
+            var user = await this.usersService.GetUser(model.Email, Constants.Strings.UserProviders.DefaultProvider);
+
+            if (user != null)
+            {
+                if (user.ResetCode == model.Code && model.Password == model.ConfirmPassword)
+                {
+                    string salt = PasswordHelper.CreateSalt(10);
+                    string hashedNewPassword = PasswordHelper.CreatePasswordHash(model.Password, salt);
+
+                    user.Salt = salt;
+                    user.HashedPassword = hashedNewPassword;
+                    user.ResetCode = null;
+
+                    var userUpdated = await this.usersService.Update(user);
+
+                    if (userUpdated)
+                    {
+                        return new JsonResult("Password was successfully changed") { StatusCode = StatusCodes.Status200OK };
+                    }
+                }
+            }
+
+            return new JsonResult("Reset code is invalid") { StatusCode = StatusCodes.Status400BadRequest };
+        }
+
         [HttpPost]
         [AllowAnonymous]
         [Route("refreshtoken")]
-        public async Task<ActionResult> RefreshToken(RefreshTokenModel model)
+        public async Task<ActionResult> RefreshToken(RefreshToken model)
         {
             var token = await this.accountService.RefreshToken(model.Token);
 
