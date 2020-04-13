@@ -9,6 +9,6 @@ namespace Bytehive.Scraper.Contracts
     {
         HtmlNode GetNodeFromMarkup(string markup);
 
-        string GetQuerySelectorFromText(string markup, string text, string element, int line);
+        string GetQuerySelectorFromText(string markup, string text, string element, int line = -1);
     }
 }

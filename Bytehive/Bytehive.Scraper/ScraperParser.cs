@@ -1,10 +1,14 @@
 ﻿using Bytehive.Scraper.Contracts;
+using Bytehive.Scraper.Utilites;
 using Fizzler.Systems.HtmlAgilityPack;
 using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Xml;
+using System.Xml.XPath;
+using System.Xml.Xsl;
 
 namespace Bytehive.Scraper
 {
@@ -30,9 +34,8 @@ namespace Bytehive.Scraper
             html.LoadHtml(markup);
             var rootNode = html.DocumentNode;
 
-            // TODO: Work on string exterpolation
-            var textSelector = $"//*[contains(text(), '{text}')]";
-            var nodes = rootNode.SelectNodes(textSelector);
+            var xpathExpression = this.CreateXPathExpression(text);
+            var nodes = rootNode.SelectNodes(xpathExpression);
 
             if (nodes == null || nodes.Count == 0 || (nodes.Count > 1 && line == -1))
             {
@@ -65,7 +68,6 @@ namespace Bytehive.Scraper
 
             foreach (var attribute in node.Attributes)
             {
-                // TODO: add blacklist for other attributes if needed
                 if(!ShouldProcessAttribute(attribute.Name))
                 {
                     continue;
@@ -79,7 +81,10 @@ namespace Bytehive.Scraper
 
         private HtmlNode GetNode(HtmlNodeCollection nodes, string element, int line)
         {
-            var elementNodes = element == "#text" ? nodes.Where(n => n.Line == line) : nodes.Where(n => n.Name == element);
+            // used for line deviation as a result of whitespace normalization
+            var lineStep = 5;
+
+            var elementNodes = element == "#text" ? nodes.Where(n => (n.Line - lineStep < line && n.Line + lineStep > line)) : nodes.Where(n => n.Name == element);
             return elementNodes.Count() > 1 ? nodes.FirstOrDefault(n => n.Line == line) : elementNodes.FirstOrDefault();
         }
 
@@ -92,6 +97,30 @@ namespace Bytehive.Scraper
         private bool ShouldProcessAttribute(string name)
         {
             return whiteListAttributes.Any(attr => name.Contains(attr));
+        }
+
+        // Used against XPath injection
+        private XPathExpression CreateXPathExpression(string text)
+        {
+            // hack for case insensitive search
+            var lowerChars = string.Join("", text.ToCharArray().Distinct()).ToLower();
+            var upperChars = lowerChars.ToUpper();
+
+            // TODO: Work on HTML tag stripping - https://html-agility-pack.net/knowledge-base/26744559/htmlagilitypack--xpath-and-regex
+
+            string xpathExpression = $"//*[contains(normalize-space(translate(text(), $upperChars, $lowerChars)), $text)]";
+            XPathExpression xpath = XPathExpression.Compile(xpathExpression);
+
+            // Arguments are provided as a XsltArgumentList()
+            XsltArgumentList varList = new XsltArgumentList();
+            varList.AddParam("text", string.Empty, text.ToLower());
+            varList.AddParam("lowerChars", string.Empty, lowerChars);
+            varList.AddParam("upperChars", string.Empty, upperChars);
+
+            BytehiveScraperContext context = new BytehiveScraperContext(new NameTable(), varList);
+            xpath.SetContext(context);
+
+            return xpath;
         }
 
         private readonly List<string> whiteListAttributes = new List<string>() { "id", "class", "name", "placeholder", "label", "data-*" };

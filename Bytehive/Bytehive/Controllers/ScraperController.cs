@@ -39,6 +39,20 @@ namespace Bytehive.Controllers
 
         [HttpPut]
         [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("automatic")]
+        public async Task<ActionResult> Automatic(AutomaticModel model)
+        {
+            var response = await this.scraperClient.GetAsync(model.Url);
+            var content = await response.Content.ReadAsStringAsync();
+
+            var node = this.scraperParser.GetNodeFromMarkup(model.Text);
+            var query = this.scraperParser.GetQuerySelectorFromText(content, node.InnerText, node.Name);
+
+            return new JsonResult(query) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpPut]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
         [Route("code")]
         public async Task<ActionResult> Code(CodeModel model)
         {
