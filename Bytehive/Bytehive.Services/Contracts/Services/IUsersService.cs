@@ -15,6 +15,8 @@ namespace Bytehive.Services.Contracts.Services
 
         Task<bool> Create(User user);
 
+        Task<bool> Update(User user);
+
         Task<bool> Delete(User user);
 
         Task<bool> AssignRole(Guid userId, string roleName);

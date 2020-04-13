@@ -1,5 +1,6 @@
 ﻿using Autofac;
-using Bytehive.Services.AppConfig;
+using Bytehive.Scraper;
+using Bytehive.Scraper.Contracts;
 using Bytehive.Services.Authentication;
 using Bytehive.Services.Contracts;
 using System;
@@ -18,7 +19,11 @@ namespace Bytehive
             builder.RegisterType<TokenFactory>().As<ITokenFactory>().SingleInstance();
             builder.RegisterType<JwtTokenValidator>().As<IJwtTokenValidator>().SingleInstance();
             builder.RegisterType<ExternalTokenValidator>().As<IExternalTokenValidator>().SingleInstance();
-            builder.RegisterType<AppConfiguration>().As<IAppConfiguration>().SingleInstance();
+            builder.RegisterType<ScraperParser>().As<IScraperParser>().SingleInstance();
+
+            builder.RegisterType<Services.AppConfig.AppConfiguration>().As<Services.AppConfig.IAppConfiguration>().SingleInstance();
+            builder.RegisterType<Notifications.AppConfig.AppConfiguration>().As<Notifications.AppConfig.IAppConfiguration>().SingleInstance();
+            builder.RegisterType<Scraper.AppConfig.AppConfiguration>().As<Scraper.AppConfig.IAppConfiguration>().SingleInstance();
         }
     }
 }

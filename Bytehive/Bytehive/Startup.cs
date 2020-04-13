@@ -1,37 +1,27 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
 using AutoMapper;
 using Bytehive.Controllers;
 using Bytehive.Data;
 using Bytehive.Models.Settings;
+using Bytehive.Notifications;
+using Bytehive.Scraper;
+using Bytehive.Scraper.Contracts;
 using Bytehive.Services;
 using Bytehive.Services.Authentication;
-using Bytehive.Services.Contracts;
 using Bytehive.Services.Contracts.Repository;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Repository;
 using Bytehive.Services.Utilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Owin;
-using Microsoft.Owin.Security.OAuth;
+using System;
+using System.Security.Claims;
+using System.Text;
 
 namespace Bytehive
 {
@@ -56,6 +46,9 @@ namespace Bytehive
 
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IUsersService, UsersService>();
+
+            services.AddTransient<ISendGridSender, SendGridSender>();
+            services.AddTransient<IScraperClient, ScraperClient>();
 
             services.AddAutoMapper(typeof(IUsersRepository).Assembly, typeof(AccountController).Assembly);
 
