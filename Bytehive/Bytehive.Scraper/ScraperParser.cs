@@ -19,6 +19,22 @@ namespace Bytehive.Scraper
 
         }
 
+        public string SanitizeHtml(string content, string host)
+        {
+            var html = new HtmlDocument();
+            html.LoadHtml(content);
+
+            html.DocumentNode.Descendants()
+                    .Where(n => n.Name == "script")
+                    .ToList()
+                    .ForEach(n => n.Remove());
+
+            this.TransformRelativeToAbsolute(host, html);
+
+            return html.DocumentNode.OuterHtml;
+        }
+
+
         public HtmlNode GetNodeFromMarkup(string markup)
         {
             var html = new HtmlDocument();
@@ -60,6 +76,38 @@ namespace Bytehive.Scraper
             }
 
             return selectedNode == null ? "non-determined" : selectedNode.ParentNode == null ? "non-unique" : string.IsNullOrEmpty(querySelector) ? "non-determined" : querySelector;
+        }
+
+        private string TransformRelativeToAbsolute(string host, HtmlDocument html)
+        {
+            foreach (var node in html.DocumentNode.Descendants())
+            {
+                if (node.Name == "img" && node.Attributes["src"] != null)
+                {
+                    if (!node.Attributes["src"].Value.StartsWith("http"))
+                    {
+                        var baseUri = new Uri(host);
+                        var href = node.Attributes["src"].Value;
+                        var relativeUrl = href.StartsWith("~/") ? href.Substring(2, href.Length - 2) : href.StartsWith("/") ? href.Substring(1, href.Length - 1) : href;
+
+                        node.Attributes["src"].Value = new Uri(baseUri, relativeUrl).AbsoluteUri;
+                    }
+                }
+
+                if((node.Name == "a" || node.Name == "link") && node.Attributes["href"] != null)
+                {
+                    if(!node.Attributes["href"].Value.StartsWith("http"))
+                    {
+                        var baseUri = new Uri(host);
+                        var href = node.Attributes["href"].Value;
+                        var relativeUrl = href.StartsWith("~/") ? href.Substring(2, href.Length - 2) : href.StartsWith("/") ? href.Substring(1, href.Length - 1) : href;
+
+                        node.Attributes["href"].Value = new Uri(baseUri, relativeUrl).AbsoluteUri;
+                    }
+                }
+            }
+
+            return html.DocumentNode.OuterHtml;
         }
 
         private string CreateSelector(HtmlNode node)
