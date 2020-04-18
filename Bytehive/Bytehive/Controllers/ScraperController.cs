@@ -29,12 +29,16 @@ namespace Bytehive.Controllers
         [HttpGet]
         [Authorize(Policy = Constants.Strings.Roles.User)]
         [Route("markup")]
-        public async Task<ActionResult> Markup(string url)
+        public async Task<ActionResult> Markup(string url, bool sanitize)
         {
             var response = await this.scraperClient.GetAsync(url);
             var content = await response.Content.ReadAsStringAsync();
+            var uri = new Uri(url);
+            var host = string.Format("{0}://{1}", uri.Scheme, uri.Host);
 
-            return new ContentResult() { StatusCode = StatusCodes.Status200OK, ContentType = "text/html", Content = content };
+            var sanitizedContent = sanitize ? this.scraperParser.SanitizeHtml(content, host) : content;
+
+            return new ContentResult() { StatusCode = StatusCodes.Status200OK, ContentType = "text/html", Content = sanitizedContent };
         }
 
         [HttpPut]
@@ -47,6 +51,18 @@ namespace Bytehive.Controllers
 
             var node = this.scraperParser.GetNodeFromMarkup(model.Text);
             var query = this.scraperParser.GetQuerySelectorFromText(content, node.InnerText, node.Name);
+
+            return new JsonResult(query) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpPut]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("visual")]
+        public async Task<ActionResult> Visual(VisualModel model)
+        {
+            var response = await this.scraperClient.GetAsync(model.Url);
+            var content = await response.Content.ReadAsStringAsync();
+            var query = this.scraperParser.GetQuerySelectorFromText(content, model.Text, model.Element);
 
             return new JsonResult(query) { StatusCode = StatusCodes.Status200OK };
         }
