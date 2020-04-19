@@ -7,5 +7,7 @@
         public string Text { get; set; }
 
         public string Element { get; set; }
+
+        public bool ScrapeLink { get; set; }
     }
 }
