@@ -7,5 +7,7 @@
         public int Line { get; set; }
         
         public string Text { get; set; }
+
+        public bool ScrapeLink { get; set; }
     }
 }

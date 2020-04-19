@@ -43,7 +43,7 @@ namespace Bytehive.Scraper
             return html.DocumentNode.FirstChild;
         }
 
-        public string GetQuerySelectorFromText(string markup, string text, string element = "", int line = -1)
+        public string GetQuerySelectorFromText(string markup, string text, string element = "", bool scrapeLink = false, int line = -1)
         {
             var querySelector = string.Empty;
             var html = new HtmlDocument();
@@ -53,20 +53,20 @@ namespace Bytehive.Scraper
             var xpathExpression = this.CreateXPathExpression(text);
             var nodes = rootNode.SelectNodes(xpathExpression);
 
-            if (nodes == null || nodes.Count == 0 || (nodes.Count > 1 && line == -1))
+            if (nodes == null || nodes.Count == 0 || (nodes.Count > 1 && line == -1 && !scrapeLink))
             {
                 return "non-determined";
             }
 
-            var selectedNode = nodes.Count == 1 ? nodes[0] : GetNode(nodes, element, line);
+            var selectedNode = nodes.Count == 1 ? nodes[0] : GetNode(nodes, element, line, scrapeLink);
 
             if(selectedNode != null)
             {
                 while (true)
                 {
-                    querySelector = querySelector == string.Empty ? $"{CreateSelector(selectedNode)}" : $"{CreateSelector(selectedNode)} > {querySelector}";
+                    querySelector = querySelector == string.Empty ? $"{CreateSelector(selectedNode)}" : scrapeLink ? $"{CreateSelector(selectedNode)}" : $"{CreateSelector(selectedNode)} > {querySelector}";
 
-                    if (selectedNode.ParentNode == null || IsUniqueSelector(rootNode, querySelector))
+                    if (selectedNode.ParentNode == null || (!scrapeLink && IsUniqueSelector(rootNode, querySelector)) || (scrapeLink && selectedNode.Name == "a"))
                     {
                         break;
                     }
@@ -127,13 +127,14 @@ namespace Bytehive.Scraper
             return element;
         }
 
-        private HtmlNode GetNode(HtmlNodeCollection nodes, string element, int line)
+        private HtmlNode GetNode(HtmlNodeCollection nodes, string element, int line, bool scrapeLink)
         {
             // used for line deviation as a result of whitespace normalization
             var lineStep = 5;
 
             var elementNodes = element == "#text" ? nodes.Where(n => (n.Line - lineStep < line && n.Line + lineStep > line)) : nodes.Where(n => n.Name == element);
-            return elementNodes.Count() > 1 ? nodes.FirstOrDefault(n => n.Line == line) : elementNodes.FirstOrDefault();
+
+            return elementNodes.FirstOrDefault(n => n.Name == "a") != null ? elementNodes.FirstOrDefault(n => n.Name == "a") : (elementNodes.Count() > 1 && line != -1) ? nodes.FirstOrDefault(n => n.Line == line) : elementNodes.FirstOrDefault();
         }
 
         private bool IsUniqueSelector(HtmlNode rootNode, string selector)
