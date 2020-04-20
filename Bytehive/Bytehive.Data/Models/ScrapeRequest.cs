@@ -18,9 +18,13 @@ namespace Bytehive.Data.Models
 
         public ExportType ExportType { get; set; }
 
+        public ScrapeRequestStatus Status { get; set; }
+
         public string Data { get; set; }
 
         public DateTime ExpirationDate { get; set; }
+
+        public DateTime CreationDate { get; set; }
 
         public string ValidationKey { get; set; }
 

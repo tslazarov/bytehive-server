@@ -21,7 +21,7 @@ using Newtonsoft.Json;
 namespace Bytehive.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/users")]
     public class UsersController : Controller
     {
         private readonly IUsersService usersService;

@@ -6,19 +6,15 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Services.Contracts.Repository
 {
-    public interface IUsersRepository
+    public interface IScrapeRequestsRepository
     {
         Task<IEnumerable<TModel>> GetAll<TModel>();
-
-        Task<IEnumerable<TModel>> GetAll<TModel>(string providerName);
  
         Task<TModel> Get<TModel>(Guid id);
 
-        Task<TModel> Get<TModel>(string email, string providerName);
+        Task<bool> Create<TModel>(TModel scrapeRequest);
 
-        Task<bool> Create<TModel>(TModel user);
-
-        Task<bool> Update<TModel>(TModel user);
+        Task<bool> Update<TModel>(TModel scrapeRequest);
 
         Task<bool> Delete(Guid id);
     }

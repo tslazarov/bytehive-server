@@ -35,19 +35,19 @@ namespace Bytehive.Scraper
         }
 
 
-        public HtmlNode GetNodeFromMarkup(string markup)
+        public HtmlNode GetNodeFromHtml(string content)
         {
             var html = new HtmlDocument();
-            html.LoadHtml(markup);
+            html.LoadHtml(content);
 
             return html.DocumentNode.FirstChild;
         }
 
-        public string GetQuerySelectorFromText(string markup, string text, string element = "", bool scrapeLink = false, int line = -1)
+        public string GetQuerySelectorFromText(string content, string text, string element = "", bool scrapeLink = false, int line = -1)
         {
             var querySelector = string.Empty;
             var html = new HtmlDocument();
-            html.LoadHtml(markup);
+            html.LoadHtml(content);
             var rootNode = html.DocumentNode;
 
             var xpathExpression = this.CreateXPathExpression(text);
@@ -77,6 +77,18 @@ namespace Bytehive.Scraper
 
             return selectedNode == null ? "non-determined" : selectedNode.ParentNode == null ? "non-unique" : string.IsNullOrEmpty(querySelector) ? "non-determined" : querySelector;
         }
+
+        public bool ValidateListQuerySelector(string content, string markup)
+        {
+            var querySelector = string.Empty;
+            var html = new HtmlDocument();
+            html.LoadHtml(content);
+            var rootNode = html.DocumentNode;
+
+            var nodes = rootNode.QuerySelectorAll(markup).ToList();
+            return nodes.Count > 0;
+        }
+
 
         private string TransformRelativeToAbsolute(string host, HtmlDocument html)
         {
@@ -140,7 +152,7 @@ namespace Bytehive.Scraper
         private bool IsUniqueSelector(HtmlNode rootNode, string selector)
         {
             var nodes = rootNode.QuerySelectorAll(selector).ToList();
-            return nodes.Count == 1 ? true : false;
+            return nodes.Count == 1;
         }
 
         private bool ShouldProcessAttribute(string name)

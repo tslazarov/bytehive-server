@@ -7,10 +7,12 @@ namespace Bytehive.Scraper.Contracts
 {
     public interface IScraperParser
     {
-        HtmlNode GetNodeFromMarkup(string markup);
+        HtmlNode GetNodeFromHtml(string content);
 
-        string GetQuerySelectorFromText(string markup, string text, string element, bool scrapeLink = false, int line = -1);
+        string GetQuerySelectorFromText(string content, string text, string element, bool scrapeLink = false, int line = -1);
 
         string SanitizeHtml(string html, string host);
+
+        bool ValidateListQuerySelector(string content, string markup);
     }
 }
