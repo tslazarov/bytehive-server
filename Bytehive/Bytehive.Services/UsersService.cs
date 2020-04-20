@@ -24,9 +24,9 @@ namespace Bytehive.Services
             this.userRolesRepository = userRolesRepository;
         }
         
-        public async Task<User> GetUser(Guid userId)
+        public async Task<User> GetUser(Guid id)
         {
-            return await this.usersRepository.Get<User>(userId);
+            return await this.usersRepository.Get<User>(id);
         }
 
         public async Task<User> GetUser(string email, string providerName)

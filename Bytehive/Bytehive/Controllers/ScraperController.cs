@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace Bytehive.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/scraper")]
     public class ScraperController: Controller
     {
         private readonly IScraperClient scraperClient;

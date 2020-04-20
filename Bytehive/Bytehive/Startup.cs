@@ -39,21 +39,10 @@ namespace Bytehive
             services
                 .AddDbContext<BytehiveDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("BytehiveConnection")));
 
-            services.AddTransient<IUsersRepository, UsersRepository>();
-            services.AddTransient<IRolesRepository, RolesRepository>();
-            services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
-            services.AddTransient<IUserRolesRepository, UserRolesRepository>();
-
-            services.AddTransient<IAccountService, AccountService>();
-            services.AddTransient<IUsersService, UsersService>();
-
-            services.AddTransient<ISendGridSender, SendGridSender>();
-            services.AddTransient<IScraperClient, ScraperClient>();
+            this.RegisterCoreDIDependencies(services);
 
             services.AddAutoMapper(typeof(IUsersRepository).Assembly, typeof(AccountController).Assembly);
 
-            // configure strongly typed settings objects
-            // Register the ConfigurationBuilder instance of AuthSettings
             var authSettings = Configuration.GetSection(nameof(AuthSettings));
             services.Configure<AuthSettings>(authSettings);
 
@@ -129,6 +118,22 @@ namespace Bytehive
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private void RegisterCoreDIDependencies(IServiceCollection services)
+        {
+            services.AddTransient<IUsersRepository, UsersRepository>();
+            services.AddTransient<IRolesRepository, RolesRepository>();
+            services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddTransient<IScrapeRequestsRepository, ScrapeRequestsRepository>();
+            services.AddTransient<IUserRolesRepository, UserRolesRepository>();
+
+            services.AddTransient<IAccountService, AccountService>();
+            services.AddTransient<IUsersService, UsersService>();
+            services.AddTransient<IScrapeRequestsService, ScrapeRequestsService>();
+
+            services.AddTransient<ISendGridSender, SendGridSender>();
+            services.AddTransient<IScraperClient, ScraperClient>();
         }
     }
 }

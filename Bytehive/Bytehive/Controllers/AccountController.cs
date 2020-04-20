@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace Bytehive.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/account")]
     public class AccountController : Controller
     {
         private readonly IUsersService usersService;
