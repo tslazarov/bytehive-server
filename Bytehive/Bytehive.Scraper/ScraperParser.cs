@@ -43,22 +43,27 @@ namespace Bytehive.Scraper
             return html.DocumentNode.FirstChild;
         }
 
-        public string GetQuerySelectorFromText(string content, string text, string element = "", bool scrapeLink = false, int line = -1)
+        public string GetQuerySelectorFromText(string content, string text, string element = "", string elementName = "", bool scrapeLink = false, int line = -1)
         {
             var querySelector = string.Empty;
             var html = new HtmlDocument();
             html.LoadHtml(content);
             var rootNode = html.DocumentNode;
 
-            var xpathExpression = this.CreateXPathExpression(text);
-            var nodes = rootNode.SelectNodes(xpathExpression);
+            var nodes = rootNode.QuerySelectorAll(element)?.ToList();
 
-            if (nodes == null || nodes.Count == 0 || (nodes.Count > 1 && line == -1 && !scrapeLink))
+            if (nodes == null || nodes.Count != 1)
             {
-                return "non-determined";
+                var xpathExpression = this.CreateXPathExpression(text);
+                nodes = rootNode.SelectNodes(xpathExpression)?.ToList();
+
+                if (IsNodeNoneDetermined(nodes, line, elementName, scrapeLink))
+                {
+                    return "non-determined";
+                }
             }
 
-            var selectedNode = nodes.Count == 1 ? nodes[0] : GetNode(nodes, element, line, scrapeLink);
+            var selectedNode = nodes.Count == 1 ? nodes[0] : GetNode(nodes, elementName, line, scrapeLink);
 
             if(selectedNode != null)
             {
@@ -89,6 +94,31 @@ namespace Bytehive.Scraper
             return nodes.Count > 0;
         }
 
+        public bool ValidateListQuerySelector(string content, List<Tuple<string, string>> mappings, ref List<Tuple<string, string>> mappingsResult)
+        {
+            var isValid = true;
+            var querySelector = string.Empty;
+            var html = new HtmlDocument();
+            html.LoadHtml(content);
+            var rootNode = html.DocumentNode;
+
+            foreach (var mapping in mappings)
+            {
+                var node = rootNode.QuerySelectorAll(mapping.Item2).FirstOrDefault();
+
+                if(node != null)
+                {
+                    mappingsResult.Add(new Tuple<string, string>(mapping.Item1, node.InnerText));
+                }
+                else
+                {
+                    mappingsResult.Add(new Tuple<string, string>(mapping.Item1, string.Empty));
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
 
         private string TransformRelativeToAbsolute(string host, HtmlDocument html)
         {
@@ -122,7 +152,7 @@ namespace Bytehive.Scraper
             return html.DocumentNode.OuterHtml;
         }
 
-        private string CreateSelector(HtmlNode node)
+        public string CreateSelector(HtmlNode node)
         {
             var element = node.Name;
 
@@ -139,12 +169,12 @@ namespace Bytehive.Scraper
             return element;
         }
 
-        private HtmlNode GetNode(HtmlNodeCollection nodes, string element, int line, bool scrapeLink)
+        private HtmlNode GetNode(IList<HtmlNode> nodes, string elementName, int line, bool scrapeLink)
         {
             // used for line deviation as a result of whitespace normalization
             var lineStep = 5;
 
-            var elementNodes = element == "#text" ? nodes.Where(n => (n.Line - lineStep < line && n.Line + lineStep > line)) : nodes.Where(n => n.Name == element);
+            var elementNodes = elementName == "#text" ? nodes.Where(n => (n.Line - lineStep < line && n.Line + lineStep > line)) : nodes.Where(n => n.Name == elementName);
 
             return elementNodes.FirstOrDefault(n => n.Name == "a") != null ? elementNodes.FirstOrDefault(n => n.Name == "a") : (elementNodes.Count() > 1 && line != -1) ? nodes.FirstOrDefault(n => n.Line == line) : elementNodes.FirstOrDefault();
         }
@@ -153,6 +183,11 @@ namespace Bytehive.Scraper
         {
             var nodes = rootNode.QuerySelectorAll(selector).ToList();
             return nodes.Count == 1;
+        }
+
+        private bool IsNodeNoneDetermined(IList<HtmlNode> nodes, int line, string element, bool scrapeLink)
+        {
+            return nodes == null || nodes.Count == 0 || (nodes.Count > 1 && line == -1 && !scrapeLink && (string.IsNullOrEmpty(element) || nodes.Where(n => n.Name == element).Count() > 1));
         }
 
         private bool ShouldProcessAttribute(string name)
@@ -184,6 +219,6 @@ namespace Bytehive.Scraper
             return xpath;
         }
 
-        private readonly List<string> whiteListAttributes = new List<string>() { "id", "class", "name", "placeholder", "label", "data-*" };
+        private readonly List<string> whiteListAttributes = new List<string>() { "id", "class", "name", "placeholder", "label", "data-*", "itemprop" };
     }
 }

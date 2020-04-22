@@ -8,6 +8,8 @@
 
         public string Element { get; set; }
 
+        public string ElementName { get; set; }
+
         public bool ScrapeLink { get; set; }
     }
 }
