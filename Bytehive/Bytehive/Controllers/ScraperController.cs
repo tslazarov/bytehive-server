@@ -50,7 +50,7 @@ namespace Bytehive.Controllers
             var content = await response.Content.ReadAsStringAsync();
 
             var node = this.scraperParser.GetNodeFromHtml(model.Text);
-            var query = this.scraperParser.GetQuerySelectorFromText(content, node.InnerText, node.Name, model.ScrapeLink);
+            var query = this.scraperParser.GetQuerySelectorFromText(content, node.InnerText, string.Empty, node.Name, model.ScrapeLink);
 
             return new JsonResult(query) { StatusCode = StatusCodes.Status200OK };
         }
@@ -62,7 +62,16 @@ namespace Bytehive.Controllers
         {
             var response = await this.scraperClient.GetAsync(model.Url);
             var content = await response.Content.ReadAsStringAsync();
-            var query = this.scraperParser.GetQuerySelectorFromText(content, model.Text, model.Element, model.ScrapeLink);
+
+            var node = this.scraperParser.GetNodeFromHtml(model.Element);
+            var querySelector = string.Empty;
+            
+            if(node != null)
+            {
+                querySelector = this.scraperParser.CreateSelector(node);
+            }
+
+            var query = this.scraperParser.GetQuerySelectorFromText(content, model.Text, querySelector, model.ElementName, model.ScrapeLink);
 
             return new JsonResult(query) { StatusCode = StatusCodes.Status200OK };
         }
@@ -76,7 +85,8 @@ namespace Bytehive.Controllers
             var content = await response.Content.ReadAsStringAsync();
 
             var node = this.scraperParser.GetNodeFromHtml(model.Text);
-            var query = this.scraperParser.GetQuerySelectorFromText(content, node.InnerText, node.Name, model.ScrapeLink, model.Line);
+            var querySelector = this.scraperParser.CreateSelector(node);
+            var query = this.scraperParser.GetQuerySelectorFromText(content, node.InnerText, querySelector, node.Name, model.ScrapeLink, model.Line);
 
             return new JsonResult(query) { StatusCode = StatusCodes.Status200OK };
         }
@@ -92,6 +102,22 @@ namespace Bytehive.Controllers
             var isValid = this.scraperParser.ValidateListQuerySelector(content, model.Markup);
 
             return new JsonResult(isValid) { StatusCode = StatusCodes.Status200OK };
+        }
+
+
+        [HttpPut]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("validatedetail")]
+        public async Task<ActionResult> ValidateDetail(ValidateDetailModel model)
+        {
+            var response = await this.scraperClient.GetAsync(model.Url);
+            var content = await response.Content.ReadAsStringAsync();
+            var mappings = model.FieldMappings.Select(fm => new Tuple<string, string>(fm.FieldName, fm.FieldMarkup)).ToList();
+            var mappingsResult = new List<Tuple<string, string>>();
+
+            var isValid = this.scraperParser.ValidateListQuerySelector(content, mappings, ref mappingsResult);
+
+            return new JsonResult(new ValidateDetailViewModel(isValid, mappingsResult)) { StatusCode = StatusCodes.Status200OK };
         }
     }
 }
