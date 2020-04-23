@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Web;
 using System.Xml;
 using System.Xml.XPath;
 using System.Xml.Xsl;
@@ -94,7 +95,7 @@ namespace Bytehive.Scraper
             return nodes.Count > 0;
         }
 
-        public bool ValidateListQuerySelector(string content, List<Tuple<string, string>> mappings, ref List<Tuple<string, string>> mappingsResult)
+        public bool ValidateDetailQuerySelector(string content, List<Tuple<string, string>> mappings, ref List<Tuple<string, string>> mappingsResult)
         {
             var isValid = true;
             var querySelector = string.Empty;
@@ -108,7 +109,7 @@ namespace Bytehive.Scraper
 
                 if(node != null)
                 {
-                    mappingsResult.Add(new Tuple<string, string>(mapping.Item1, node.InnerText));
+                    mappingsResult.Add(new Tuple<string, string>(mapping.Item1, HttpUtility.HtmlDecode(node.InnerText.Trim())));
                 }
                 else
                 {
