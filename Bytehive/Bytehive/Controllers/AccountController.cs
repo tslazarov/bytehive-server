@@ -179,6 +179,48 @@ namespace Bytehive.Controllers
             return new JsonResult("Reset code is invalid") { StatusCode = StatusCodes.Status400BadRequest };
         }
 
+        [HttpPut]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("changepassword")]
+        public async Task<ActionResult> ChangePassword(ChangePasswordModel model)
+        {
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+
+            if (identity != null)
+            {
+                Guid id;
+
+                if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
+                {
+                    var user = await this.usersService.GetUser(id);
+
+                    if (user != null)
+                    {
+                        var hashedPassword = PasswordHelper.CreatePasswordHash(model.CurrentPassword, user.Salt);
+
+                        if (user.HashedPassword == hashedPassword && model.Password == model.ConfirmPassword)
+                        {
+                            string salt = PasswordHelper.CreateSalt(10);
+                            string hashedNewPassword = PasswordHelper.CreatePasswordHash(model.Password, salt);
+
+                            user.Salt = salt;
+                            user.HashedPassword = hashedNewPassword;
+                            user.ResetCode = null;
+
+                            var userUpdated = await this.usersService.Update(user);
+
+                            if (userUpdated)
+                            {
+                                return new JsonResult("Password was successfully changed") { StatusCode = StatusCodes.Status200OK };
+                            }
+                        }
+                    }
+                }
+            }
+
+            return new JsonResult("Password was not changed") { StatusCode = StatusCodes.Status400BadRequest };
+        }
+
         [HttpPost]
         [AllowAnonymous]
         [Route("refreshtoken")]
