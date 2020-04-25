@@ -249,7 +249,7 @@ namespace Bytehive.Controllers
 
         [HttpPut]
         [Authorize(Policy = Constants.Strings.Roles.User)]
-        [Route("changesettings")]
+        [Route("settings")]
         public async Task<ActionResult> ChangeSettings(ChangeSettingsModel model)
         {
             ClaimsIdentity identity = User.Identity as ClaimsIdentity;
@@ -277,6 +277,40 @@ namespace Bytehive.Controllers
             }
 
             return new JsonResult("Settings were not changed") { StatusCode = StatusCodes.Status400BadRequest };
+        }
+
+        [HttpPut]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("information")]
+        public async Task<ActionResult> ChangeInformation(ChangeInformationModel model)
+        {
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+
+            if (identity != null)
+            {
+                Guid id;
+
+                if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
+                {
+                    var user = await this.usersService.GetUser<User>(id);
+
+                    if (user != null)
+                    {
+                        user.FirstName = model.FirstName;
+                        user.LastName = model.LastName;
+                        user.Occupation = (Occupation)model.Occupation;
+
+                        var userUpdated = await this.usersService.Update(user);
+
+                        if (userUpdated)
+                        {
+                            return new JsonResult("Profile information was successfully changed") { StatusCode = StatusCodes.Status200OK };
+                        }
+                    }
+                }
+            }
+
+            return new JsonResult("Profile information was not changed") { StatusCode = StatusCodes.Status400BadRequest };
         }
 
 
