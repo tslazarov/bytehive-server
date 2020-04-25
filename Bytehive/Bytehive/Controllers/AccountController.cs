@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Bytehive.Data.Models;
 using Bytehive.Models.Account;
+using Bytehive.Models.Users;
 using Bytehive.Notifications;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Utilities;
@@ -34,12 +35,37 @@ namespace Bytehive.Controllers
             this.notificationsSender = notificationsSender;
         }
 
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("profile")]
+        public async Task<ActionResult> Profile()
+        {
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+
+            if (identity != null)
+            {
+                Guid id;
+
+                if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
+                {
+                    var user = await this.usersService.GetUser<UserDetailViewModel>(id);
+
+                    if (user != null)
+                    {
+                        return new JsonResult(user) { StatusCode = StatusCodes.Status200OK };
+                    }
+                }
+            }
+
+            return new JsonResult(null) { StatusCode = StatusCodes.Status200OK };
+        }
+
         [HttpPost]
         [AllowAnonymous]
         [Route("signup")]
         public async Task<ActionResult> SignUp(SignupUserModel model)
         {
-            var existingUser = await this.usersService.GetUser(model.Email, Constants.Strings.UserProviders.DefaultProvider);
+            var existingUser = await this.usersService.GetUser<User>(model.Email, Constants.Strings.UserProviders.DefaultProvider);
 
             if(existingUser != null)
             {
@@ -126,7 +152,7 @@ namespace Bytehive.Controllers
         [Route("resetcode")]
         public async Task<ActionResult> ResetCode(ResetCodeModel model)
         {
-            var user = await this.usersService.GetUser(model.Email, Constants.Strings.UserProviders.DefaultProvider);
+            var user = await this.usersService.GetUser<User>(model.Email, Constants.Strings.UserProviders.DefaultProvider);
 
             if(user != null)
             {
@@ -154,7 +180,7 @@ namespace Bytehive.Controllers
         [Route("resetpassword")]
         public async Task<ActionResult> ResetPassword(ResetPasswordModel model)
         {
-            var user = await this.usersService.GetUser(model.Email, Constants.Strings.UserProviders.DefaultProvider);
+            var user = await this.usersService.GetUser<User>(model.Email, Constants.Strings.UserProviders.DefaultProvider);
 
             if (user != null)
             {
@@ -192,7 +218,7 @@ namespace Bytehive.Controllers
 
                 if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
                 {
-                    var user = await this.usersService.GetUser(id);
+                    var user = await this.usersService.GetUser<User>(id);
 
                     if (user != null)
                     {
@@ -220,6 +246,39 @@ namespace Bytehive.Controllers
 
             return new JsonResult("Password was not changed") { StatusCode = StatusCodes.Status400BadRequest };
         }
+
+        [HttpPut]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("changesettings")]
+        public async Task<ActionResult> ChangeSettings(ChangeSettingsModel model)
+        {
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+
+            if (identity != null)
+            {
+                Guid id;
+
+                if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
+                {
+                    var user = await this.usersService.GetUser<User>(id);
+
+                    if (user != null)
+                    {
+                        user.DefaultLanguage = (Language)model.DefaultLanguage;
+
+                        var userUpdated = await this.usersService.Update(user);
+
+                        if (userUpdated)
+                        {
+                            return new JsonResult("Settings were successfully changed") { StatusCode = StatusCodes.Status200OK };
+                        }
+                    }
+                }
+            }
+
+            return new JsonResult("Settings were not changed") { StatusCode = StatusCodes.Status400BadRequest };
+        }
+
 
         [HttpPost]
         [AllowAnonymous]

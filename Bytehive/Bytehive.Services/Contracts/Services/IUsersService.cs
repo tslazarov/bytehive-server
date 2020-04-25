@@ -7,9 +7,9 @@ namespace Bytehive.Services.Contracts.Services
 {
     public interface IUsersService
     {
-        Task<User> GetUser(Guid id);
+        Task<TModel> GetUser<TModel>(Guid id);
 
-        Task<User> GetUser(string email, string providerName);
+        Task<TModel> GetUser<TModel>(string email, string providerName);
 
         Task<IEnumerable<TModel>> GetUsers<TModel>();
 

@@ -19,17 +19,19 @@ namespace Bytehive.Services.Infrastructure
             this.CreateMap<SignupUserModel, User>()
                 .ForMember(m => m.Id, map => map.MapFrom(source => Guid.NewGuid()))
                 .ForMember(m => m.Provider, map => map.MapFrom(source => Constants.Strings.UserProviders.DefaultProvider))
-                .ForMember(m => m.RegistrationDate, map => map.MapFrom(source => DateTime.Now));
+                .ForMember(m => m.RegistrationDate, map => map.MapFrom(source => DateTime.UtcNow));
 
             // User
             this.CreateMap<User, UserListViewModel>();
+
+            this.CreateMap<User, UserDetailViewModel>();
 
             // ScrapeRequest
             this.CreateMap<ScrapeRequestCreateModel, ScrapeRequest>()
                 .ForMember(m => m.Id, map => map.MapFrom(source => Guid.NewGuid()))
                 .ForMember(m => m.Data, map => map.MapFrom(source => JsonConvert.SerializeObject(source)))
                 .ForMember(m => m.Status, map => map.MapFrom(source => ScrapeRequestStatus.Pending))
-                .ForMember(m => m.CreationDate, map => map.MapFrom(source => DateTime.Now));
+                .ForMember(m => m.CreationDate, map => map.MapFrom(source => DateTime.UtcNow));
         }
     }
 }

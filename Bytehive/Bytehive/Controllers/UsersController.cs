@@ -54,7 +54,7 @@ namespace Bytehive.Controllers
 
             if (Guid.TryParse(id, out parsedId))
             {
-                User user = await this.usersService.GetUser(parsedId);
+                User user = await this.usersService.GetUser<User>(parsedId);
 
                 if(user != null)
                 {

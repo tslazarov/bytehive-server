@@ -24,14 +24,14 @@ namespace Bytehive.Services
             this.userRolesRepository = userRolesRepository;
         }
         
-        public async Task<User> GetUser(Guid id)
+        public async Task<TModel> GetUser<TModel>(Guid id)
         {
-            return await this.usersRepository.Get<User>(id);
+            return await this.usersRepository.Get<TModel>(id);
         }
 
-        public async Task<User> GetUser(string email, string providerName)
+        public async Task<TModel> GetUser<TModel>(string email, string providerName)
         {
-            return await this.usersRepository.Get<User>(email, providerName);
+            return await this.usersRepository.Get<TModel>(email, providerName);
         }
 
         public async Task<IEnumerable<TModel>> GetUsers<TModel>()
