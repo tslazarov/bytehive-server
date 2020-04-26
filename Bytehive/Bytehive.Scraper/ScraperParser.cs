@@ -51,7 +51,7 @@ namespace Bytehive.Scraper
             html.LoadHtml(content);
             var rootNode = html.DocumentNode;
 
-            var nodes = rootNode.QuerySelectorAll(element)?.ToList();
+            var nodes = string.IsNullOrEmpty(element) ? null : rootNode.QuerySelectorAll(element)?.ToList();
 
             if (nodes == null || nodes.Count != 1)
             {

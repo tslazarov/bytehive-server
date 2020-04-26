@@ -90,7 +90,7 @@ namespace Bytehive
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy(Constants.Strings.Roles.User, policy => policy.RequireClaim(ClaimTypes.Role, Constants.Strings.JwtClaims.ApiUser));
+                options.AddPolicy(Constants.Strings.Roles.User, policy => policy.RequireClaim(ClaimTypes.Role, Constants.Strings.JwtClaims.ApiUser, Constants.Strings.JwtClaims.ApiAdministrator));
                 options.AddPolicy(Constants.Strings.Roles.Administrator, policy => policy.RequireClaim(ClaimTypes.Role, Constants.Strings.JwtClaims.ApiAdministrator));
             });
         }

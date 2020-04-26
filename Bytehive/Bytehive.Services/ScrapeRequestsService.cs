@@ -18,9 +18,9 @@ namespace Bytehive.Services
             this.scrapeRequestsRepository = scrapeRequestsRepository;
         }
 
-        public async Task<ScrapeRequest> GetScrapeRequest(Guid id)
+        public async Task<TModel> GetScrapeRequest<TModel>(Guid id)
         {
-            return await this.scrapeRequestsRepository.Get<ScrapeRequest>(id);
+            return await this.scrapeRequestsRepository.Get<TModel>(id);
         }
 
         public async Task<IEnumerable<TModel>> GetScrapeRequests<TModel>()

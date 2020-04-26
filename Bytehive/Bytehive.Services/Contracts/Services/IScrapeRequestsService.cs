@@ -7,7 +7,7 @@ namespace Bytehive.Services.Contracts.Services
 {
     public interface IScrapeRequestsService
     {
-        Task<ScrapeRequest> GetScrapeRequest(Guid id);
+        Task<TModel> GetScrapeRequest<TModel>(Guid id);
 
         Task<IEnumerable<TModel>> GetScrapeRequests<TModel>();
 

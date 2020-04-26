@@ -31,6 +31,24 @@ namespace Bytehive.Controllers
             this.mapper = mapper;
         }
 
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("all")]
+        public async Task<ActionResult> All()
+        {
+            var scrapeRequests = await this.scrapeRequestsService.GetScrapeRequests<ScrapeRequestListViewModel>();
+
+            return new JsonResult(scrapeRequests.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("detail")]
+        public async Task<ActionResult> Detail(string id)
+        {
+            return new JsonResult("") { StatusCode = StatusCodes.Status200OK };
+        }
+
         [HttpPost]
         [Authorize(Policy = Constants.Strings.Roles.User)]
         [Route("create")]
@@ -57,6 +75,30 @@ namespace Bytehive.Controllers
             }
 
             return new JsonResult(false) { StatusCode = StatusCodes.Status400BadRequest };
+        }
+
+        [HttpDelete]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("delete")]
+        public async Task<ActionResult> Delete(string id)
+        {
+            Guid parsedId;
+            bool deleted = false;
+
+            if (Guid.TryParse(id, out parsedId))
+            {
+                ScrapeRequest scrapeRequest = await this.scrapeRequestsService.GetScrapeRequest<ScrapeRequest>(parsedId);
+
+                if (scrapeRequest != null)
+                {
+                    deleted = await this.scrapeRequestsService.Delete(scrapeRequest);
+
+                }
+            }
+
+            var statusCode = deleted ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest;
+
+            return new JsonResult(deleted) { StatusCode = statusCode };
         }
     }
 }

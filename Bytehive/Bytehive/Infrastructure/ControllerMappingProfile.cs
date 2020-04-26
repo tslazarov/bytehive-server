@@ -22,7 +22,8 @@ namespace Bytehive.Services.Infrastructure
                 .ForMember(m => m.RegistrationDate, map => map.MapFrom(source => DateTime.UtcNow));
 
             // User
-            this.CreateMap<User, UserListViewModel>();
+            this.CreateMap<User, UserListViewModel>()
+                .ForMember(m => m.TotalRequests, map => map.MapFrom(source => source.ScrapeRequests.Count));
 
             this.CreateMap<User, UserDetailViewModel>();
 
@@ -32,6 +33,9 @@ namespace Bytehive.Services.Infrastructure
                 .ForMember(m => m.Data, map => map.MapFrom(source => JsonConvert.SerializeObject(source)))
                 .ForMember(m => m.Status, map => map.MapFrom(source => ScrapeRequestStatus.Pending))
                 .ForMember(m => m.CreationDate, map => map.MapFrom(source => DateTime.UtcNow));
+
+            this.CreateMap<ScrapeRequest, ScrapeRequestListViewModel>()
+                .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
         }
     }
 }

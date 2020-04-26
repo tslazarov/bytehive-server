@@ -44,6 +44,14 @@ namespace Bytehive.Controllers
             return new JsonResult(users) { StatusCode = StatusCodes.Status200OK };
         }
 
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("detail")]
+        public async Task<ActionResult> Detail(string id)
+        {
+            return new JsonResult("") { StatusCode = StatusCodes.Status200OK };
+        }
+
         [HttpDelete]
         [Authorize(Policy = Constants.Strings.Roles.Administrator)]
         [Route("delete")]
@@ -66,14 +74,6 @@ namespace Bytehive.Controllers
             var statusCode = deleted ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest;
 
             return new JsonResult(deleted) { StatusCode = statusCode };
-        }
-
-        [HttpGet]
-        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
-        [Route("detail")]
-        public async Task<ActionResult> Detail(string id)
-        {
-            return new JsonResult("") { StatusCode = StatusCodes.Status200OK };
         }
     }
 }
