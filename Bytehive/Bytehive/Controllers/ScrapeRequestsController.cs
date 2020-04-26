@@ -46,7 +46,16 @@ namespace Bytehive.Controllers
         [Route("detail")]
         public async Task<ActionResult> Detail(string id)
         {
-            return new JsonResult("") { StatusCode = StatusCodes.Status200OK };
+            Guid parsedId;
+
+            if (Guid.TryParse(id, out parsedId))
+            {
+                ScrapeRequestDetailViewModel scrapeRequest = await this.scrapeRequestsService.GetScrapeRequest<ScrapeRequestDetailViewModel>(parsedId);
+
+                return new JsonResult(scrapeRequest) { StatusCode = StatusCodes.Status200OK };
+            }
+
+            return new JsonResult(null) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpPost]

@@ -36,6 +36,9 @@ namespace Bytehive.Services.Infrastructure
 
             this.CreateMap<ScrapeRequest, ScrapeRequestListViewModel>()
                 .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
+
+            this.CreateMap<ScrapeRequest, ScrapeRequestDetailViewModel>()
+                .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
         }
     }
 }
