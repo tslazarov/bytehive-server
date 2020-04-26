@@ -115,7 +115,7 @@ namespace Bytehive.Controllers
             var mappings = model.FieldMappings.Select(fm => new Tuple<string, string>(fm.FieldName, fm.FieldMarkup)).ToList();
             var mappingsResult = new List<Tuple<string, string>>();
 
-            var isValid = this.scraperParser.ValidateListQuerySelector(content, mappings, ref mappingsResult);
+            var isValid = this.scraperParser.ValidateDetailQuerySelector(content, mappings, ref mappingsResult);
 
             return new JsonResult(new ValidateDetailViewModel(isValid, mappingsResult)) { StatusCode = StatusCodes.Status200OK };
         }

@@ -15,7 +15,7 @@ namespace Bytehive.Scraper.Contracts
 
         bool ValidateListQuerySelector(string content, string markup);
 
-        bool ValidateListQuerySelector(string content, List<Tuple<string, string>> mappings, ref List<Tuple<string, string>> mappingsResult);
+        bool ValidateDetailQuerySelector(string content, List<Tuple<string, string>> mappings, ref List<Tuple<string, string>> mappingsResult);
 
         string CreateSelector(HtmlNode node);
     }

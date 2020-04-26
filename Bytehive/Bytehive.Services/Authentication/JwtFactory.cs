@@ -36,6 +36,7 @@ namespace Bytehive.Services.Authentication
                  identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Id),
                  identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Email),
                  identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Language),
+                 identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Name),
                  identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Provider)
              };
 
@@ -59,6 +60,7 @@ namespace Bytehive.Services.Authentication
                 new Claim(Constants.Strings.JwtClaimIdentifiers.Email, user.Email),
                 new Claim(Constants.Strings.JwtClaimIdentifiers.Language, user.DefaultLanguage.ToString()),
                 new Claim(Constants.Strings.JwtClaimIdentifiers.Provider, user.Provider),
+                new Claim(Constants.Strings.JwtClaimIdentifiers.Name, string.Format("{0} {1}", user.FirstName, user.LastName)),
                 new Claim(Constants.Strings.JwtClaimIdentifiers.Role, roles)
             });
         }

@@ -14,6 +14,7 @@ namespace Bytehive.Services.Utilities
                 public const string Id = "id";
                 public const string Email = "email";
                 public const string Language = "language";
+                public const string Name = "name";
                 public const string Provider = "provider";
             }
 
