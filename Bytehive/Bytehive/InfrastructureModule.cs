@@ -24,6 +24,7 @@ namespace Bytehive
             builder.RegisterType<Services.AppConfig.AppConfiguration>().As<Services.AppConfig.IAppConfiguration>().SingleInstance();
             builder.RegisterType<Notifications.AppConfig.AppConfiguration>().As<Notifications.AppConfig.IAppConfiguration>().SingleInstance();
             builder.RegisterType<Scraper.AppConfig.AppConfiguration>().As<Scraper.AppConfig.IAppConfiguration>().SingleInstance();
+            builder.RegisterType<Storage.AppConfig.AppConfiguration>().As<Storage.AppConfig.IAppConfiguration>().SingleInstance();
         }
     }
 }

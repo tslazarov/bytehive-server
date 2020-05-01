@@ -1,5 +1,7 @@
-﻿using Bytehive.Scraper.Contracts;
+﻿using Bytehive.Data.Models;
+using Bytehive.Scraper.Contracts;
 using Bytehive.Scraper.Models;
+using Bytehive.Services.Contracts.Services;
 using Bytehive.Storage;
 using Fizzler.Systems.HtmlAgilityPack;
 using System;
@@ -8,6 +10,7 @@ using System.Dynamic;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.Linq;
 
 namespace Bytehive.Scraper
 {
@@ -16,14 +19,31 @@ namespace Bytehive.Scraper
         private IAzureBlobStorageProvider azureBlobStorage;
         private IScraperClient scraperClient;
         private IScraperParser scraperParser;
+        private IScrapeRequestsService scrapeRequestsService;
 
         public ScraperProcessor(IAzureBlobStorageProvider azureBlobStorage,
             IScraperClient scraperClient,
-            IScraperParser scraperParser)
+            IScraperParser scraperParser,
+            IScrapeRequestsService scrapeRequestsService)
         {
             this.azureBlobStorage = azureBlobStorage;
             this.scraperClient = scraperClient;
             this.scraperParser = scraperParser;
+            this.scrapeRequestsService = scrapeRequestsService;
+        }
+
+        public async Task<bool> ProcessScrapeRequest()
+        {
+            var requests = await this.scrapeRequestsService.GetScrapeRequests<ScrapeRequest>();
+            var currentRequest = requests.Where(r => r.Status == ScrapeRequestStatus.Pending).OrderBy(r => r.CreationDate).FirstOrDefault();
+
+            if(currentRequest != null)
+            {
+                //currentRequest.Status = ScrapeRequestStatus.Started;
+                //await this.scrapeRequestsService.Update(currentRequest);
+            }
+
+            return true;
         }
 
         public async Task<bool> ProcessDetails(ScrapeSettings settings)
@@ -31,7 +51,7 @@ namespace Bytehive.Scraper
             var taskList = new List<Task<Dictionary<string, string>>>();
             foreach (var detailUrl in settings.DetailUrls)
             {
-                var task = ProcessRequest(detailUrl, settings.FieldMappings);
+                var task = ProcessPage(detailUrl, settings.FieldMappings);
                 taskList.Add(task);
             }
 
@@ -44,7 +64,7 @@ namespace Bytehive.Scraper
             return true;
         }
 
-        public async Task<Dictionary<string, string>> ProcessRequest(string url, List<FieldMapping> fieldMappings)
+        public async Task<Dictionary<string, string>> ProcessPage(string url, List<FieldMapping> fieldMappings)
         {
             Dictionary<string, string> outputObject = new Dictionary<string, string>();
 

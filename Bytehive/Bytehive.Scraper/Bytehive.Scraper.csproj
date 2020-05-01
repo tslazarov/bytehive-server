@@ -11,4 +11,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Bytehive.Data\Bytehive.Data.csproj" />
+    <ProjectReference Include="..\Bytehive.Services\Bytehive.Services.csproj" />
+    <ProjectReference Include="..\Bytehive.Storage\Bytehive.Storage.csproj" />
+  </ItemGroup>
+
 </Project>
