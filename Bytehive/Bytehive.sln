@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bytehive.Services", "Bytehi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bytehive.Notifications", "Bytehive.Notifications\Bytehive.Notifications.csproj", "{028B9387-A1CB-49C0-AF55-04F6B6AEF618}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bytehive.Scraper", "Bytehive.Scraper\Bytehive.Scraper.csproj", "{70CF752E-DE80-45C3-9748-E13DD59D4E9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bytehive.Scraper", "Bytehive.Scraper\Bytehive.Scraper.csproj", "{70CF752E-DE80-45C3-9748-E13DD59D4E9F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bytehive.Storage", "Bytehive.Storage\Bytehive.Storage.csproj", "{5A43542B-E644-406E-823F-00E36819F5CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{70CF752E-DE80-45C3-9748-E13DD59D4E9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{70CF752E-DE80-45C3-9748-E13DD59D4E9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{70CF752E-DE80-45C3-9748-E13DD59D4E9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A43542B-E644-406E-823F-00E36819F5CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A43542B-E644-406E-823F-00E36819F5CB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A43542B-E644-406E-823F-00E36819F5CB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A43542B-E644-406E-823F-00E36819F5CB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
