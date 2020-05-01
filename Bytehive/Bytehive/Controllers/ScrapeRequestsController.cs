@@ -74,12 +74,12 @@ namespace Bytehive.Controllers
                     var scrapeRequest = this.mapper.Map<ScrapeRequest>(model);
                     scrapeRequest.UserId = id;
 
-                    var requestCreated = await this.scrapeRequestsService.Create(scrapeRequest);
+                    //var requestCreated = await this.scrapeRequestsService.Create(scrapeRequest);
 
-                    if (requestCreated)
-                    {
-                        return new JsonResult(true) { StatusCode = StatusCodes.Status200OK };
-                    }
+                    //if (requestCreated)
+                    //{
+                    //    return new JsonResult(true) { StatusCode = StatusCodes.Status200OK };
+                    //}
                 }
             }
 
