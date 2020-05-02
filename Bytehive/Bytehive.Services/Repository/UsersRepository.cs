@@ -75,9 +75,9 @@ namespace Bytehive.Services.Repository
         {
             if (user is User)
             {
-                this.db.Entry(user).State = EntityState.Modified;
-                this.db.Users.Update(user as User);
-
+                var localUser = user as User;
+                this.db.DetachLocal(localUser, localUser.Id);
+                this.db.Users.Update(localUser);
                 await this.db.SaveChangesAsync();
 
                 return true;

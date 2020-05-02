@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bytehive.Data.Contracts;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Bytehive.Data.Models
 {
     [Table("user")]
-    public class User 
+    public class User: IIdentifier
     {
         public User()
         {

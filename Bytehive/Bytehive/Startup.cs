@@ -157,6 +157,7 @@ namespace Bytehive
             services.AddTransient<ISendGridSender, SendGridSender>();
             services.AddTransient<IScraperClient, ScraperClient>();
             services.AddTransient<IScraperParser, ScraperParser>();
+            services.AddTransient<IScraperFileHelper, ScraperFileHelper>();
             services.AddTransient<IScraperProcessor, ScraperProcessor>();
 
             services.AddTransient<IAzureBlobStorageProvider, AzureBlobStorageProvider>();

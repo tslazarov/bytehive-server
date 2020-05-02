@@ -11,6 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Linq;
+using Newtonsoft.Json;
+using HtmlAgilityPack;
+using System.Text.RegularExpressions;
 
 namespace Bytehive.Scraper
 {
@@ -19,16 +22,19 @@ namespace Bytehive.Scraper
         private IAzureBlobStorageProvider azureBlobStorage;
         private IScraperClient scraperClient;
         private IScraperParser scraperParser;
+        private IScraperFileHelper scraperFileHelper;
         private IScrapeRequestsService scrapeRequestsService;
 
         public ScraperProcessor(IAzureBlobStorageProvider azureBlobStorage,
             IScraperClient scraperClient,
             IScraperParser scraperParser,
+            IScraperFileHelper scraperFileHelper,
             IScrapeRequestsService scrapeRequestsService)
         {
             this.azureBlobStorage = azureBlobStorage;
             this.scraperClient = scraperClient;
             this.scraperParser = scraperParser;
+            this.scraperFileHelper = scraperFileHelper;
             this.scrapeRequestsService = scrapeRequestsService;
         }
 
@@ -39,14 +45,80 @@ namespace Bytehive.Scraper
 
             if(currentRequest != null)
             {
-                //currentRequest.Status = ScrapeRequestStatus.Started;
-                //await this.scrapeRequestsService.Update(currentRequest);
+                try
+                {
+                    currentRequest.Status = ScrapeRequestStatus.Started;
+                    await this.scrapeRequestsService.Update(currentRequest);
+
+                    var scrapeSettings = JsonConvert.DeserializeObject<ScrapeSettings>(currentRequest.Data);
+                    var results = await ProcessScrapeType(currentRequest.ScrapeType, scrapeSettings);
+                    var exported = await ProcessExportType(currentRequest.ExportType, results, currentRequest);
+
+                    if(exported)
+                    {
+                        currentRequest.Status = ScrapeRequestStatus.Completed;
+                        currentRequest.FileName = this.GetFileName(currentRequest.Id, currentRequest.ExportType);
+                        currentRequest.ExpirationDate = DateTime.UtcNow.AddMonths(2);
+                        await this.scrapeRequestsService.Update(currentRequest);
+                    }
+                }
+                catch(Exception ex)
+                {
+                    // TODO: Log exception
+                    currentRequest.Status = ScrapeRequestStatus.Failed;
+                    await this.scrapeRequestsService.Update(currentRequest);
+                }
             }
 
             return true;
         }
 
-        public async Task<bool> ProcessDetails(ScrapeSettings settings)
+        public async Task<List<Dictionary<string, string>>> ProcessScrapeType(ScrapeType type, ScrapeSettings settings)
+        {
+            var results = new List<Dictionary<string, string>>();
+
+            switch (type)
+            {
+                case ScrapeType.ListDetail:
+                    break;
+                case ScrapeType.List:
+                    break;
+                case ScrapeType.Detail:
+                    results = await this.ProcessDetails(settings);
+                    break;
+                default:
+                    break;
+            }
+
+            return results;
+        }
+
+        public async Task<bool> ProcessExportType(ExportType exportType, List<Dictionary<string, string>> results, ScrapeRequest currentRequest)
+        {
+            bool isProcessed = false;
+
+            switch (exportType)
+            {
+                case ExportType.Json:
+                    isProcessed = await this.ProcessJsonExport(results, currentRequest);
+                    break;
+                case ExportType.Xml:
+                    isProcessed = await this.ProcessXmlExport(results, currentRequest);
+                    break;
+                case ExportType.Csv:
+                    isProcessed = await this.ProcessCsvExport(results, currentRequest);
+                    break;
+                case ExportType.Txt:
+                    isProcessed = await this.ProcessTxtExport(results, currentRequest);
+                    break;
+                default:
+                    break;
+            }
+
+            return isProcessed;
+        }
+
+        public async Task<List<Dictionary<string, string>>> ProcessDetails(ScrapeSettings settings)
         {
             var taskList = new List<Task<Dictionary<string, string>>>();
             foreach (var detailUrl in settings.DetailUrls)
@@ -57,11 +129,7 @@ namespace Bytehive.Scraper
 
             var results = await Task.WhenAll(taskList).ConfigureAwait(false);
 
-            foreach (var result in results)
-            {
-            }
-
-            return true;
+            return results.ToList();
         }
 
         public async Task<Dictionary<string, string>> ProcessPage(string url, List<FieldMapping> fieldMappings)
@@ -75,7 +143,10 @@ namespace Bytehive.Scraper
             {
                 var content = await response.Content.ReadAsStringAsync();
 
-                var htmlNode = this.scraperParser.GetNodeFromHtml(content);
+                var html = new HtmlDocument();
+                html.LoadHtml(content);
+
+                var htmlNode = html.DocumentNode;
 
                 foreach (var fieldMapping in fieldMappings)
                 {
@@ -85,7 +156,7 @@ namespace Bytehive.Scraper
                         
                         if(!outputObject.ContainsKey(fieldMapping.FieldName))
                         {
-                            outputObject[fieldMapping.FieldName] = HttpUtility.HtmlDecode(node.InnerText.Trim());
+                            outputObject[fieldMapping.FieldName] = Regex.Replace(Regex.Replace(HttpUtility.HtmlDecode(node.InnerText.Trim()), @"\r\n?|\n", ""), @"\s+", " ");
                         }
                     }
                     catch (Exception e)
@@ -96,6 +167,79 @@ namespace Bytehive.Scraper
             }
 
             return outputObject;
+        }
+
+        public async Task<bool> ProcessJsonExport(List<Dictionary<string, string>> entries, ScrapeRequest scrapeRequest)
+        {
+            var fileName = string.Format("results-{0}.json", scrapeRequest.Id);
+
+            var json = JsonConvert.SerializeObject(entries, Formatting.Indented);
+
+            var fileStream = this.scraperFileHelper.GenerateStreamFromString(json);
+            var blobContent = await this.azureBlobStorage.UploadBlob("scrapefiles", fileName, ".json", fileStream);
+
+            return blobContent != null;
+        }
+
+        public async Task<bool> ProcessXmlExport(List<Dictionary<string, string>> entries, ScrapeRequest scrapeRequest)
+        {
+            var fileName = string.Format("results-{0}.xml", scrapeRequest.Id);
+
+            var xml = this.scraperFileHelper.SerializeToXml(entries);
+
+            var fileStream = this.scraperFileHelper.GenerateStreamFromString(xml);
+            var blobContent = await this.azureBlobStorage.UploadBlob("scrapefiles", fileName, ".xml", fileStream);
+
+            return blobContent != null;
+        }
+
+        public async Task<bool> ProcessCsvExport(List<Dictionary<string, string>> entries, ScrapeRequest scrapeRequest)
+        {
+            var fileName = string.Format("results-{0}.csv", scrapeRequest.Id);
+
+            var txt = this.scraperFileHelper.SerializeToTxt(entries);
+
+            var fileStream = this.scraperFileHelper.GenerateStreamFromString(txt);
+            var blobContent = await this.azureBlobStorage.UploadBlob("scrapefiles", fileName, ".csv", fileStream);
+
+            return blobContent != null;
+        }
+
+        public async Task<bool> ProcessTxtExport(List<Dictionary<string, string>> entries, ScrapeRequest scrapeRequest)
+        {
+            var fileName = string.Format("results-{0}.txt", scrapeRequest.Id);
+
+            var txt = this.scraperFileHelper.SerializeToTxt(entries);
+
+            var fileStream = this.scraperFileHelper.GenerateStreamFromString(txt);
+            var blobContent = await this.azureBlobStorage.UploadBlob("scrapefiles", fileName, ".txt", fileStream);
+
+            return blobContent != null;
+        }
+
+        private string GetFileName(Guid id, ExportType exportType)
+        {
+            string fileName = string.Empty;
+
+            switch (exportType)
+            {
+                case ExportType.Json:
+                    fileName = string.Format("results-{0}.json", id);
+                    break;
+                case ExportType.Xml:
+                    fileName = string.Format("results-{0}.xml", id);
+                    break;
+                case ExportType.Csv:
+                    fileName = string.Format("results-{0}.csv", id);
+                    break;
+                case ExportType.Txt:
+                    fileName = string.Format("results-{0}.txt", id);
+                    break;
+                default:
+                    break;
+            }
+
+            return fileName;
         }
     }
 }

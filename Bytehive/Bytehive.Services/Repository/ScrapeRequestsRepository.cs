@@ -58,9 +58,9 @@ namespace Bytehive.Services.Repository
         {
             if (scrapeRequest is ScrapeRequest)
             {
-                this.db.Entry(scrapeRequest).State = EntityState.Modified;
-                this.db.ScrapeRequests.Update(scrapeRequest as ScrapeRequest);
-
+                var localScrapeRequest = scrapeRequest as ScrapeRequest;
+                this.db.DetachLocal(localScrapeRequest, localScrapeRequest.Id);
+                this.db.ScrapeRequests.Update(localScrapeRequest);
                 await this.db.SaveChangesAsync();
 
                 return true;

@@ -17,7 +17,7 @@ namespace Bytehive.Storage
 
         bool ContainerExists(string containerName);
 
-        Task<BlobContentInfo> UploadBlob(string containerName, string fileName, Stream fileStream);
+        Task<BlobContentInfo> UploadBlob(string containerName, string fileName, string fileType, Stream fileStream);
 
         Task<BlobDownloadInfo> DownloadBlob(string containerName, string fileName);
 

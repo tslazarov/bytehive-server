@@ -15,9 +15,9 @@ namespace Bytehive.Scraper.Models
 
         public bool HasPaging { get; set; }
 
-        public int StartPage { get; set; }
+        public int? StartPage { get; set; }
 
-        public int EndPage { get; set; }
+        public int? EndPage { get; set; }
         
         public string DetailMarkup { get; set; }
 

@@ -66,9 +66,9 @@ namespace Bytehive.Services.Repository
         {
             if (role is Role)
             {
-                this.db.Entry(role).State = EntityState.Modified;
-                this.db.Roles.Update(role as Role);
-
+                var localRole = role as Role;
+                this.db.DetachLocal(localRole, localRole.Id);
+                this.db.Roles.Update(localRole);
                 await this.db.SaveChangesAsync();
 
                 return true;

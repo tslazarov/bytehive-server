@@ -56,10 +56,11 @@ namespace Bytehive.Services.Repository
 
         public async Task<bool> Update<TModel>(TModel refreshToken)
         {
-            if (refreshToken is User)
+            if (refreshToken is RefreshToken)
             {
-                this.db.Entry(refreshToken).State = EntityState.Modified;
-                this.db.RefreshTokens.Update(refreshToken as RefreshToken);
+                var localRefreshToken = refreshToken as RefreshToken;
+                this.db.DetachLocal(localRefreshToken, localRefreshToken.Id);
+                this.db.RefreshTokens.Update(localRefreshToken);
 
                 await this.db.SaveChangesAsync();
 

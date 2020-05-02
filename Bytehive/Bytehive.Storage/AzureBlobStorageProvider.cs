@@ -46,13 +46,13 @@ namespace Bytehive.Storage
         }
 
 
-        public async Task<BlobContentInfo> UploadBlob(string containerName, string fileName, Stream fileStream)
+        public async Task<BlobContentInfo> UploadBlob(string containerName, string fileName, string fileType, Stream fileStream)
         {
             BlobContainerClient containerClient = this.GetContainer(containerName);
 
             BlobClient blobClient = containerClient.GetBlobClient(fileName);
 
-            BlobContentInfo response = await blobClient.UploadAsync(fileStream, true);
+            BlobContentInfo response = await blobClient.UploadAsync(fileStream, new BlobHttpHeaders { ContentType = GetContentType(fileType) });
 
             return response;
         }
@@ -84,6 +84,18 @@ namespace Bytehive.Storage
                 }
 
                 return this.client;
+            }
+        }
+
+        private string GetContentType(string fileType)
+        {
+            switch (fileType)
+            {
+                case ".txt": return "text/plain";
+                case ".json": return "application/json";
+                case ".xml": return "application/xml";
+                case ".csv": return "application/csv";
+                default: return "application/octet-stream";
             }
         }
 

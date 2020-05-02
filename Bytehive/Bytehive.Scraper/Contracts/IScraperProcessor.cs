@@ -8,7 +8,7 @@ namespace Bytehive.Scraper.Contracts
     {
         Task<bool> ProcessScrapeRequest();
 
-        Task<bool> ProcessDetails(ScrapeSettings settings);
+        Task<List<Dictionary<string, string>>> ProcessDetails(ScrapeSettings settings);
 
         Task<Dictionary<string, string>> ProcessPage(string url, List<FieldMapping> fieldMappings);
     }
