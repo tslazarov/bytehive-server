@@ -10,6 +10,6 @@ namespace Bytehive.Scraper.Contracts
 
         Task<List<Dictionary<string, string>>> ProcessDetails(ScrapeSettings settings);
 
-        Task<Dictionary<string, string>> ProcessPage(string url, List<FieldMapping> fieldMappings);
+        Task<Dictionary<string, string>> ProcessDetailPage(string url, List<FieldMapping> fieldMappings);
     }
 }

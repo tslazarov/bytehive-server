@@ -80,6 +80,7 @@ namespace Bytehive.Scraper
             switch (type)
             {
                 case ScrapeType.ListDetail:
+                    results = await this.ProcessListDetails(settings);
                     break;
                 case ScrapeType.List:
                     break;
@@ -118,21 +119,55 @@ namespace Bytehive.Scraper
             return isProcessed;
         }
 
-        public async Task<List<Dictionary<string, string>>> ProcessDetails(ScrapeSettings settings)
+        public async Task<List<Dictionary<string, string>>> ProcessListDetails(ScrapeSettings settings)
         {
-            var taskList = new List<Task<Dictionary<string, string>>>();
-            foreach (var detailUrl in settings.DetailUrls)
+            var listTaskList = new List<Task<List<string>>>();
+            var detailsTaskList = new List<Task<Dictionary<string, string>>>();
+
+            if (settings.StartPage != null && settings.EndPage != null)
             {
-                var task = ProcessPage(detailUrl, settings.FieldMappings);
-                taskList.Add(task);
+                for (int i = settings.StartPage.Value; i <= settings.EndPage.Value; i++)
+                {
+                    string url = Regex.Replace(settings.ListUrl, "{{page}}", i.ToString());
+                    var task = ProcessUrl(url, settings.DetailMarkup);
+                    listTaskList.Add(task);
+                }
+            }
+            else
+            {
+                var task = ProcessUrl(settings.ListUrl, settings.DetailMarkup);
+                listTaskList.Add(task);
             }
 
-            var results = await Task.WhenAll(taskList).ConfigureAwait(false);
+            var detailUrls = await Task.WhenAll(listTaskList).ConfigureAwait(false);
+
+            foreach (var detailUrl in detailUrls.SelectMany(l => l).Distinct().ToList())
+            {
+                var task = ProcessDetailPage(detailUrl, settings.FieldMappings);
+                detailsTaskList.Add(task);
+            }
+
+            var results = await Task.WhenAll(detailsTaskList).ConfigureAwait(false);
 
             return results.ToList();
         }
 
-        public async Task<Dictionary<string, string>> ProcessPage(string url, List<FieldMapping> fieldMappings)
+
+        public async Task<List<Dictionary<string, string>>> ProcessDetails(ScrapeSettings settings)
+        {
+            var detailsTaskList = new List<Task<Dictionary<string, string>>>();
+            foreach (var detailUrl in settings.DetailUrls)
+            {
+                var task = ProcessDetailPage(detailUrl, settings.FieldMappings);
+                detailsTaskList.Add(task);
+            }
+
+            var results = await Task.WhenAll(detailsTaskList).ConfigureAwait(false);
+
+            return results.ToList();
+        }
+
+        public async Task<Dictionary<string, string>> ProcessDetailPage(string url, List<FieldMapping> fieldMappings)
         {
             Dictionary<string, string> outputObject = new Dictionary<string, string>();
 
@@ -167,6 +202,47 @@ namespace Bytehive.Scraper
             }
 
             return outputObject;
+        }
+
+        public async Task<List<string>> ProcessUrl(string url, string fieldMapping)
+        {
+            var host = new Uri(url).Host;
+
+            List<string> detailUrls = new List<string>();
+            // TODO: SET TO TRUE AS PROXY
+            var response = await this.scraperClient.GetAsync(url, false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+
+                var html = new HtmlDocument();
+                html.LoadHtml(content);
+
+                var htmlNode = html.DocumentNode;
+
+                var nodes = htmlNode.QuerySelectorAll(fieldMapping);
+
+                foreach (var node in nodes)
+                {
+                    if (node.Attributes["href"] != null)
+                    {
+                        if (!node.Attributes["href"].Value.StartsWith("http"))
+                        {
+                            var baseUri = new Uri(host);
+                            var href = node.Attributes["href"].Value;
+                            var relativeUrl = href.StartsWith("~/") ? href.Substring(2, href.Length - 2) : href.StartsWith("/") ? href.Substring(1, href.Length - 1) : href;
+
+                            node.Attributes["href"].Value = new Uri(baseUri, relativeUrl).AbsoluteUri;
+                        }
+
+                        var detailUrl = node.Attributes["href"].Value;
+                        detailUrls.Add(detailUrl);
+                    }
+                }
+            }
+
+            return detailUrls;
         }
 
         public async Task<bool> ProcessJsonExport(List<Dictionary<string, string>> entries, ScrapeRequest scrapeRequest)
