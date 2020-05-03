@@ -83,6 +83,7 @@ namespace Bytehive.Scraper
                     results = await this.ProcessListDetails(settings);
                     break;
                 case ScrapeType.List:
+                    results = await this.ProcessLists(settings);
                     break;
                 case ScrapeType.Detail:
                     results = await this.ProcessDetails(settings);
@@ -152,6 +153,30 @@ namespace Bytehive.Scraper
             return results.ToList();
         }
 
+        public async Task<List<Dictionary<string, string>>> ProcessLists(ScrapeSettings settings)
+        {
+            var listTaskList = new List<Task<List<Dictionary<string, string>>>>();
+
+            if (settings.StartPage != null && settings.EndPage != null)
+            {
+                for (int i = settings.StartPage.Value; i <= settings.EndPage.Value; i++)
+                {
+                    string url = Regex.Replace(settings.ListUrl, "{{page}}", i.ToString());
+                    var task = ProcessListPage(url, settings.FieldMappings);
+                    listTaskList.Add(task);
+                }
+            }
+            else
+            {
+                var task = ProcessListPage(settings.ListUrl, settings.FieldMappings);
+                listTaskList.Add(task);
+            }
+
+            var results = await Task.WhenAll(listTaskList).ConfigureAwait(false);
+
+            return results.SelectMany(r => r).ToList();
+        }
+
 
         public async Task<List<Dictionary<string, string>>> ProcessDetails(ScrapeSettings settings)
         {
@@ -192,6 +217,59 @@ namespace Bytehive.Scraper
                         if(!outputObject.ContainsKey(fieldMapping.FieldName))
                         {
                             outputObject[fieldMapping.FieldName] = Regex.Replace(Regex.Replace(HttpUtility.HtmlDecode(node.InnerText.Trim()), @"\r\n?|\n", ""), @"\s+", " ");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        // TODO: Log errors
+                    }
+                }
+            }
+
+            return outputObject;
+        }
+
+        public async Task<List<Dictionary<string, string>>> ProcessListPage(string url, List<FieldMapping> fieldMappings)
+        {
+            List<Dictionary<string, string>> outputObject = new List<Dictionary<string, string>>();
+
+            // TODO: SET TO TRUE AS PROXY
+            var response = await this.scraperClient.GetAsync(url, false);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+
+                var html = new HtmlDocument();
+                html.LoadHtml(content);
+
+                var htmlNode = html.DocumentNode;
+
+                var resultsList = new Dictionary<string, List<string>>();
+
+                foreach (var fieldMapping in fieldMappings)
+                {
+                    try
+                    {
+                        var index = 0;
+                        var nodes = htmlNode.QuerySelectorAll(fieldMapping.FieldMarkup).OrderBy(n => n.Line);
+
+                        foreach (var node in nodes)
+                        {
+                            if (outputObject.ElementAtOrDefault(index) == null)
+                            {
+                                outputObject.Add(new Dictionary<string, string>());
+                            }
+
+                            var result = Regex.Replace(Regex.Replace(HttpUtility.HtmlDecode(node.InnerText.Trim()), @"\r\n?|\n", ""), @"\s+", " ");
+                            resultsList[fieldMapping.FieldName].Add(result);
+
+                            if (!outputObject[index].ContainsKey(fieldMapping.FieldName))
+                            {
+                                outputObject[index].Add(fieldMapping.FieldName, result);
+                            }
+
+                            index += 1;
                         }
                     }
                     catch (Exception e)
