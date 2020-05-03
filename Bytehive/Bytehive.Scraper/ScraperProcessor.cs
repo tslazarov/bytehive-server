@@ -4,16 +4,14 @@ using Bytehive.Scraper.Models;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Storage;
 using Fizzler.Systems.HtmlAgilityPack;
+using HtmlAgilityPack;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Text;
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
-using System.Linq;
-using Newtonsoft.Json;
-using HtmlAgilityPack;
-using System.Text.RegularExpressions;
 
 namespace Bytehive.Scraper
 {
@@ -177,7 +175,6 @@ namespace Bytehive.Scraper
             return results.SelectMany(r => r).ToList();
         }
 
-
         public async Task<List<Dictionary<string, string>>> ProcessDetails(ScrapeSettings settings)
         {
             var detailsTaskList = new List<Task<Dictionary<string, string>>>();
@@ -245,8 +242,6 @@ namespace Bytehive.Scraper
 
                 var htmlNode = html.DocumentNode;
 
-                var resultsList = new Dictionary<string, List<string>>();
-
                 foreach (var fieldMapping in fieldMappings)
                 {
                     try
@@ -262,7 +257,6 @@ namespace Bytehive.Scraper
                             }
 
                             var result = Regex.Replace(Regex.Replace(HttpUtility.HtmlDecode(node.InnerText.Trim()), @"\r\n?|\n", ""), @"\s+", " ");
-                            resultsList[fieldMapping.FieldName].Add(result);
 
                             if (!outputObject[index].ContainsKey(fieldMapping.FieldName))
                             {
@@ -284,7 +278,9 @@ namespace Bytehive.Scraper
 
         public async Task<List<string>> ProcessUrl(string url, string fieldMapping)
         {
-            var host = new Uri(url).Host;
+            var uri = new Uri(url);
+            var host = uri.Host;
+            var scheme = uri.Scheme;
 
             List<string> detailUrls = new List<string>();
             // TODO: SET TO TRUE AS PROXY
@@ -307,7 +303,7 @@ namespace Bytehive.Scraper
                     {
                         if (!node.Attributes["href"].Value.StartsWith("http"))
                         {
-                            var baseUri = new Uri(host);
+                            var baseUri = new Uri(string.Format("{0}://{1}", scheme, host));
                             var href = node.Attributes["href"].Value;
                             var relativeUrl = href.StartsWith("~/") ? href.Substring(2, href.Length - 2) : href.StartsWith("/") ? href.Substring(1, href.Length - 1) : href;
 

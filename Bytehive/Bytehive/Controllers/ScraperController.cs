@@ -27,7 +27,6 @@ namespace Bytehive.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = Constants.Strings.Roles.User)]
         [Route("markup")]
         public async Task<ActionResult> Markup(string url, bool sanitize)
         {
@@ -50,7 +49,7 @@ namespace Bytehive.Controllers
             var content = await response.Content.ReadAsStringAsync();
 
             var node = this.scraperParser.GetNodeFromHtml(model.Text);
-            var query = this.scraperParser.GetQuerySelectorFromText(content, node.InnerText, string.Empty, node.Name, model.ScrapeLink);
+            var query = this.scraperParser.GetQuerySelectorFromText(content, node.InnerText, string.Empty, node.Name, model.ScrapeLink, model.IsUnique);
 
             return new JsonResult(query) { StatusCode = StatusCodes.Status200OK };
         }
@@ -71,7 +70,7 @@ namespace Bytehive.Controllers
                 querySelector = this.scraperParser.CreateSelector(node);
             }
 
-            var query = this.scraperParser.GetQuerySelectorFromText(content, model.Text, querySelector, model.ElementName, model.ScrapeLink);
+            var query = this.scraperParser.GetQuerySelectorFromText(content, model.Text, querySelector, model.ElementName, model.ScrapeLink, model.IsUnique);
 
             return new JsonResult(query) { StatusCode = StatusCodes.Status200OK };
         }
@@ -86,7 +85,7 @@ namespace Bytehive.Controllers
 
             var node = this.scraperParser.GetNodeFromHtml(model.Text);
             var querySelector = this.scraperParser.CreateSelector(node);
-            var query = this.scraperParser.GetQuerySelectorFromText(content, node.InnerText, querySelector, node.Name, model.ScrapeLink, model.Line);
+            var query = this.scraperParser.GetQuerySelectorFromText(content, node.InnerText, querySelector, node.Name, model.ScrapeLink, model.IsUnique, model.Line);
 
             return new JsonResult(query) { StatusCode = StatusCodes.Status200OK };
         }

@@ -11,5 +11,7 @@
         public string ElementName { get; set; }
 
         public bool ScrapeLink { get; set; }
+
+        public bool IsUnique { get; set; }
     }
 }

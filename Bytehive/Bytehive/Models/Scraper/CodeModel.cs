@@ -9,5 +9,7 @@
         public string Text { get; set; }
 
         public bool ScrapeLink { get; set; }
+
+        public bool IsUnique { get; set; }
     }
 }
