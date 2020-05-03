@@ -29,6 +29,10 @@ namespace Bytehive.Data.Models
 
         public string ValidationKey { get; set; }
 
-        public string FileName { get; set; }
+        public Guid FileId { get; set; }
+
+        public File File { get; set; }
+
+        public int Entries { get; set; }
     }
 }

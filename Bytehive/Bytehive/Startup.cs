@@ -149,10 +149,12 @@ namespace Bytehive
             services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
             services.AddTransient<IScrapeRequestsRepository, ScrapeRequestsRepository>();
             services.AddTransient<IUserRolesRepository, UserRolesRepository>();
+            services.AddTransient<IFilesRepository, FilesRepository>();
 
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IScrapeRequestsService, ScrapeRequestsService>();
+            services.AddTransient<IFilesService, FilesService>();
 
             services.AddTransient<ISendGridSender, SendGridSender>();
             services.AddTransient<IScraperClient, ScraperClient>();

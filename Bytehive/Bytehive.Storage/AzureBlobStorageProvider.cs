@@ -87,6 +87,20 @@ namespace Bytehive.Storage
             }
         }
 
+        public BlobProperties GetBlobProperties(string containerName, string fileName)
+        {
+            BlobContainerClient containerClient = this.GetContainer(containerName);
+
+            var blob = containerClient.GetBlobClient(fileName);
+            if (blob.Exists())
+            {
+                var properties = blob.GetProperties();
+                return properties.Value;
+            }
+
+            return null;
+        }
+
         private string GetContentType(string fileType)
         {
             switch (fileType)
