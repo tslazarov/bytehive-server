@@ -25,10 +25,16 @@ namespace Bytehive.Scraper
             var html = new HtmlDocument();
             html.LoadHtml(content);
 
-            html.DocumentNode.Descendants()
+            var nodes = html.DocumentNode.Descendants()
                     .Where(n => n.Name == "script")
-                    .ToList()
-                    .ForEach(n => n.Remove());
+                    .ToList();
+
+
+            nodes.ForEach(n => n.Remove());
+
+            var newNodes = html.DocumentNode.Descendants()
+                    .Where(n => n.Name == "script")
+                    .ToList();
 
             this.TransformRelativeToAbsolute(host, html);
 
@@ -44,40 +50,69 @@ namespace Bytehive.Scraper
             return html.DocumentNode.FirstChild;
         }
 
-        public string GetQuerySelectorFromText(string content, string text, string element = "", string elementName = "", bool scrapeLink = false, int line = -1)
+        public string GetQuerySelectorFromText(string content, string text, string element = "", string elementName = "", bool scrapeLink = false, bool isUnique = true, int line = -1)
         {
             var querySelector = string.Empty;
             var html = new HtmlDocument();
             html.LoadHtml(content);
             var rootNode = html.DocumentNode;
 
-            var nodes = string.IsNullOrEmpty(element) ? null : rootNode.QuerySelectorAll(element)?.ToList();
+            var xpathExpression = this.CreateXPathExpression(text);
+            var nodes = rootNode.SelectNodes(xpathExpression)?.ToList();
 
-            if (nodes == null || nodes.Count != 1)
+            if (nodes == null || (nodes.Count != 1 && isUnique))
             {
-                var xpathExpression = this.CreateXPathExpression(text);
-                nodes = rootNode.SelectNodes(xpathExpression)?.ToList();
+                if(nodes == null)
+                {
+                    nodes = string.IsNullOrEmpty(element) ? null : rootNode.QuerySelectorAll(element)?.ToList();
+                }
 
-                if (IsNodeNoneDetermined(nodes, line, elementName, scrapeLink))
+                if (IsNodeNoneDetermined(nodes, line, elementName, scrapeLink, isUnique))
                 {
                     return "non-determined";
                 }
             }
 
+            //var nodes = string.IsNullOrEmpty(element) ? null : rootNode.QuerySelectorAll(element)?.ToList();
+
             var selectedNode = nodes.Count == 1 ? nodes[0] : GetNode(nodes, elementName, line, scrapeLink);
 
             if(selectedNode != null)
             {
-                while (true)
+                if(isUnique || scrapeLink)
                 {
-                    querySelector = querySelector == string.Empty ? $"{CreateSelector(selectedNode)}" : scrapeLink ? $"{CreateSelector(selectedNode)}" : $"{CreateSelector(selectedNode)} > {querySelector}";
-
-                    if (selectedNode.ParentNode == null || (!scrapeLink && IsUniqueSelector(rootNode, querySelector)) || (scrapeLink && selectedNode.Name == "a"))
+                    while (true)
                     {
-                        break;
+                        querySelector = querySelector == string.Empty ? $"{CreateSelector(selectedNode)}" : scrapeLink ? $"{CreateSelector(selectedNode)}" : $"{CreateSelector(selectedNode)} > {querySelector}";
+
+                        if (selectedNode.ParentNode == null || (!scrapeLink && IsUniqueSelector(rootNode, querySelector)) || (scrapeLink && selectedNode.Name == "a"))
+                        {
+                            break;
+                        }
+
+                        selectedNode = selectedNode.ParentNode;
                     }
 
-                    selectedNode = selectedNode.ParentNode;
+                    if(scrapeLink)
+                    {
+                        selectedNode = selectedNode.ParentNode;
+
+                        for (int i = 0; i < 2; i++)
+                        {
+                            querySelector = querySelector == string.Empty ? $"{CreateSelector(selectedNode)}" : $"{CreateSelector(selectedNode)} > {querySelector}";
+
+                            selectedNode = selectedNode.ParentNode;
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < 4; i++)
+                    {
+                        querySelector = querySelector == string.Empty ? $"{CreateSelector(selectedNode)}" : scrapeLink ? $"{CreateSelector(selectedNode)}" : $"{CreateSelector(selectedNode)} > {querySelector}";
+
+                        selectedNode = selectedNode.ParentNode;
+                    }
                 }
             }
 
@@ -186,9 +221,9 @@ namespace Bytehive.Scraper
             return nodes.Count == 1;
         }
 
-        private bool IsNodeNoneDetermined(IList<HtmlNode> nodes, int line, string element, bool scrapeLink)
+        private bool IsNodeNoneDetermined(IList<HtmlNode> nodes, int line, string element, bool scrapeLink, bool isUnique)
         {
-            return nodes == null || nodes.Count == 0 || (nodes.Count > 1 && line == -1 && !scrapeLink && (string.IsNullOrEmpty(element) || nodes.Where(n => n.Name == element).Count() > 1));
+            return nodes == null || nodes.Count == 0 || (nodes.Count > 1 && line == -1 && !scrapeLink && isUnique && (string.IsNullOrEmpty(element) || nodes.Where(n => n.Name == element).Count() > 1));
         }
 
         private bool ShouldProcessAttribute(string name)

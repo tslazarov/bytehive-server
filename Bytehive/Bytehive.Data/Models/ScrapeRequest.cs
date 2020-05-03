@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Bytehive.Data.Contracts;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Bytehive.Data.Models
 {
     [Table("scrape_request")]
-    public class ScrapeRequest
+    public class ScrapeRequest : IIdentifier
     {
         [Key]
         public Guid Id { get; set; }
@@ -28,6 +29,6 @@ namespace Bytehive.Data.Models
 
         public string ValidationKey { get; set; }
 
-        public string DownloadUrl { get; set; }
+        public string FileName { get; set; }
     }
 }

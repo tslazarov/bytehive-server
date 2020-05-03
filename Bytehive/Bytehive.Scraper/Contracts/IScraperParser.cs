@@ -9,7 +9,7 @@ namespace Bytehive.Scraper.Contracts
     {
         HtmlNode GetNodeFromHtml(string content);
 
-        string GetQuerySelectorFromText(string content, string text, string element = "", string elementName = "", bool scrapeLink = false, int line = -1);
+        string GetQuerySelectorFromText(string content, string text, string element = "", string elementName = "", bool scrapeLink = false, bool isUnique = true, int line = -1);
 
         string SanitizeHtml(string html, string host);
 

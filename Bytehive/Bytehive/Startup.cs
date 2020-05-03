@@ -11,6 +11,9 @@ using Bytehive.Services.Contracts.Repository;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Repository;
 using Bytehive.Services.Utilities;
+using Bytehive.Storage;
+using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -73,6 +76,22 @@ namespace Bytehive
                 ClockSkew = TimeSpan.Zero
             };
 
+            services.AddHangfire(configuration => configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(Configuration.GetConnectionString("BytehiveHangfireConnection"), new SqlServerStorageOptions
+                {
+                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                    QueuePollInterval = TimeSpan.Zero,
+                    UseRecommendedIsolationLevel = true,
+                    UsePageLocksOnDequeue = true,
+                    DisableGlobalLocks = true
+                }));
+
+            services.AddHangfireServer();
+
             services.AddCors();
             services.AddControllers();
 
@@ -95,7 +114,7 @@ namespace Bytehive
             });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IBackgroundJobClient backgroundJobs, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -109,6 +128,9 @@ namespace Bytehive
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            var scraperProcessor = serviceProvider.GetService<IScraperProcessor>();
+            RecurringJob.AddOrUpdate("request-processor", () => scraperProcessor.ProcessScrapeRequest(), "* * * * *");
 
             app.UseCors(
                 options => options.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:4200", "https://www.bytehive.com")
@@ -134,6 +156,12 @@ namespace Bytehive
 
             services.AddTransient<ISendGridSender, SendGridSender>();
             services.AddTransient<IScraperClient, ScraperClient>();
+            services.AddTransient<IScraperParser, ScraperParser>();
+            services.AddTransient<IScraperFileHelper, ScraperFileHelper>();
+            services.AddTransient<IScraperProcessor, ScraperProcessor>();
+
+            services.AddTransient<IAzureBlobStorageProvider, AzureBlobStorageProvider>();
+
         }
     }
 }

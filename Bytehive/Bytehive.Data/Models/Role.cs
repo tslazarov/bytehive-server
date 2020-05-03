@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Bytehive.Data.Contracts;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Bytehive.Data.Models
 {
-    public class Role
+    public class Role : IIdentifier
     {
         public Role()
         {
