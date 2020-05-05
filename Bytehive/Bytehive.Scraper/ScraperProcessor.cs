@@ -426,6 +426,6 @@ namespace Bytehive.Scraper
             return fileName;
         }
 
-        private const string FilesContainerName = "scrapefiles";
+        public static readonly string FilesContainerName = "scrapefiles";
     }
 }

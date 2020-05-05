@@ -16,7 +16,9 @@ namespace Bytehive.Models.ScrapeRequests
 
         public string Email { get; set; }
 
-        public string DownloadUrl { get; set; }
+        public string FileName { get; set; }
+
+        public int Entries { get; set; }
 
         public ScrapeRequestStatus Status { get; set; }
     }

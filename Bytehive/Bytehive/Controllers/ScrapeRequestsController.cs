@@ -6,12 +6,14 @@ using Bytehive.Scraper;
 using Bytehive.Scraper.Contracts;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Utilities;
+using Bytehive.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mime;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -22,12 +24,15 @@ namespace Bytehive.Controllers
     public class ScrapeRequestsController : Controller
     {
         private readonly IScrapeRequestsService scrapeRequestsService;
+        private readonly IAzureBlobStorageProvider azureBlobStorageProvider;
         private readonly IMapper mapper;
 
         public ScrapeRequestsController(IScrapeRequestsService scrapeRequestsService,
+            IAzureBlobStorageProvider azureBlobStorageProvider,
             IMapper mapper)
         {
             this.scrapeRequestsService = scrapeRequestsService;
+            this.azureBlobStorageProvider = azureBlobStorageProvider;
             this.mapper = mapper;
         }
 
@@ -56,6 +61,39 @@ namespace Bytehive.Controllers
             }
 
             return new JsonResult(null) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
+        [Route("file/{id}")]
+        public async Task<ActionResult> DownloadFile(string id, string token)
+        {
+            Guid parsedId;
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+
+
+            if (Guid.TryParse(id, out parsedId))
+            {
+                ScrapeRequest scrapeRequest = await this.scrapeRequestsService.GetScrapeRequest<ScrapeRequest>(parsedId);
+
+                if (scrapeRequest != null && scrapeRequest.File != null)
+                {
+                    if((!string.IsNullOrEmpty(scrapeRequest.ValidationKey) && scrapeRequest.ValidationKey == token) || (identity != null && identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Role)?.Value == Constants.Strings.Roles.Administrator))
+                    {
+                        var file = await this.azureBlobStorageProvider.DownloadBlob(ScraperProcessor.FilesContainerName, scrapeRequest.File.Name);
+
+                        var cd = new ContentDisposition { FileName = scrapeRequest.File.Name, Inline = false };
+                        Response.Headers.Add("Content-Disposition", cd.ToString());
+
+                        return File(file.Content, file.ContentType);
+                    }
+                }
+                else
+                {
+                    return new JsonResult("File not found") { StatusCode = StatusCodes.Status404NotFound };
+                }
+            }
+
+            return new JsonResult("Forbidden") { StatusCode = StatusCodes.Status403Forbidden };
         }
 
         [HttpPost]
