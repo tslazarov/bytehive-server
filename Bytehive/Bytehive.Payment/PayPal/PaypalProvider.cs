@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Bytehive.Payment.Contracts;
 using PayPalCheckoutSdk.Orders;
+using PayPalCheckoutSdk.Payments;
 using PayPalHttp;
 
 namespace Bytehive.Payment.PayPal
@@ -18,7 +20,7 @@ namespace Bytehive.Payment.PayPal
 
         public async Task<object> CreateOrder()
         {
-            var request = new OrdersCreateRequest();
+            OrdersCreateRequest request = new OrdersCreateRequest();
             request.Prefer("return=representation");
             request.RequestBody(BuildRequestBody());
 
@@ -31,13 +33,65 @@ namespace Bytehive.Payment.PayPal
 
         public async Task<object> AuthorizeOrder(string orderId)
         {
-            var request = new OrdersAuthorizeRequest(orderId);
+            OrdersAuthorizeRequest request = new OrdersAuthorizeRequest(orderId);
             request.Prefer("return=representation");
             request.RequestBody(new AuthorizeRequest());
 
             var response = await this.paypalClient.Client().Execute(request);
 
             var result = response.Result<Order>();
+
+            return result;
+        }
+
+        public async Task<object> GetOrder(string orderId)
+        {
+            OrdersGetRequest request = new OrdersGetRequest(orderId);
+            var response = await this.paypalClient.Client().Execute(request);
+
+            var result = response.Result<Order>();
+
+            return result;
+        }
+
+        public async Task<object> VerifyOrder(string orderId)
+        {
+            OrdersGetRequest request = new OrdersGetRequest(orderId);
+            var response = await this.paypalClient.Client().Execute(request);
+
+            var result = response.Result<Order>();
+
+            if(result.Status == "COMPLETED")
+            {
+                var purchase = result.PurchaseUnits.FirstOrDefault();
+
+                if(purchase != null && purchase.Payments != null && purchase.Payments.Authorizations != null)
+                {
+                    var authorization = purchase.Payments.Authorizations.FirstOrDefault();
+
+                    if(authorization != null)
+                    {
+                        var authorizationId = authorization.Id;
+
+                        var captureResponse = await this.CapturePayment(authorizationId);
+
+                        return captureResponse;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private async Task<object> CapturePayment(string authorizationId)
+        {
+            AuthorizationsCaptureRequest request = new AuthorizationsCaptureRequest(authorizationId);
+            request.Prefer("return=representation");
+            request.RequestBody(new CaptureRequest());
+
+            var response = await this.paypalClient.Client().Execute(request);
+
+            var result = response.Result<PayPalCheckoutSdk.Payments.Capture>();
 
             return result;
         }
@@ -65,13 +119,13 @@ namespace Bytehive.Payment.PayPal
             AmountWithBreakdown = new AmountWithBreakdown
             {
               CurrencyCode = "EUR",
-              Value = "30.00",
+              Value = "10.00",
               AmountBreakdown = new AmountBreakdown
               {
-                ItemTotal = new Money
+                ItemTotal = new PayPalCheckoutSdk.Orders.Money
                 {
                   CurrencyCode = "EUR",
-                  Value = "30.00"
+                  Value = "10.00"
                 }
               }
             },
@@ -82,10 +136,10 @@ namespace Bytehive.Payment.PayPal
                 Name = "Enterprise",
                 Description = "Payment tier",
                 Sku = "sku01",
-                UnitAmount = new Money
+                UnitAmount = new PayPalCheckoutSdk.Orders.Money
                 {
                   CurrencyCode = "EUR",
-                  Value = "30.00"
+                  Value = "10.00"
                 },
                 Quantity = "1",
                 Category = "PHYSICAL_GOODS"

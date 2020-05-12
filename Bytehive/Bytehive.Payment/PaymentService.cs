@@ -34,5 +34,23 @@ namespace Bytehive.Payment
 
             return order;
         }
+
+        public async Task<object> GetOrder(string providerName, string orderId)
+        {
+            this.provider = this.providerResolver(providerName);
+
+            var order = await this.provider.GetOrder(orderId);
+
+            return order;
+        }
+
+        public async Task<object> VerifyOrder(string providerName, string orderId)
+        {
+            this.provider = this.providerResolver(providerName);
+
+            var order = await this.provider.VerifyOrder(orderId);
+
+            return order;
+        }
     }
 }

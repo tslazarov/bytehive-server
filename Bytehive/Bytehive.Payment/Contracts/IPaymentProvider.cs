@@ -11,5 +11,9 @@ namespace Bytehive.Payment.Contracts
         Task<object> CreateOrder();
 
         Task<object> AuthorizeOrder(string orderId);
+
+        Task<object> GetOrder(string orderId);
+
+        Task<object> VerifyOrder(string orderId);
     }
 }

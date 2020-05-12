@@ -42,5 +42,23 @@ namespace Bytehive.Controllers
 
             return new JsonResult(JsonConvert.SerializeObject(order)) { StatusCode = StatusCodes.Status200OK };
         }
+
+        [HttpPost]
+        //[Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("verify")]
+        public async Task<ActionResult> Verify(AuthorizeOrderModel model)
+        {
+            var payment = await this.paymentService.VerifyOrder(model.Provider, model.OrderId);
+
+            var capture = payment as PayPalCheckoutSdk.Payments.Capture;
+
+            if(capture.Status == "PENDING" || capture.Status == "COMPLETED")
+            {
+                // create order;
+            }
+
+
+            return new JsonResult(JsonConvert.SerializeObject(model.OrderId)) { StatusCode = StatusCodes.Status200OK };
+        }
     }
 }
