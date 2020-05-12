@@ -26,6 +26,10 @@ namespace Bytehive.Data
 
         public DbSet<FAQCategory> FAQCategories { get; set; }
 
+        public DbSet<Payment> Payments { get; set; }
+
+        public DbSet<PaymentTier> PaymentTier { get; set; }
+
         public DbSet<File> Files { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -35,6 +39,8 @@ namespace Bytehive.Data
             builder.Entity<Role>().ToTable("role");
             builder.Entity<FAQ>().ToTable("faq");
             builder.Entity<FAQCategory>().ToTable("faq_category");
+            builder.Entity<Payment>().ToTable("payment");
+            builder.Entity<PaymentTier>().ToTable("payment_tier");
             builder.Entity<ScrapeRequest>().ToTable("scrape_request");
             builder.Entity<File>().ToTable("file");
             builder.Entity<RefreshToken>().ToTable("refresh_token");
@@ -55,6 +61,18 @@ namespace Bytehive.Data
                 .HasOne(sr => sr.User)
                 .WithMany(u => u.RefreshTokens)
                 .HasForeignKey(sr => sr.UserId);
+
+            builder
+                .Entity<Payment>()
+                .HasOne(sr => sr.User)
+                .WithMany(u => u.Payments)
+                .HasForeignKey(sr => sr.UserId);
+
+            builder
+                .Entity<Payment>()
+                .HasOne(f => f.PaymentTier)
+                .WithMany(u => u.Payments)
+                .HasForeignKey(f => f.PaymentTierId);
 
             builder
                 .Entity<FAQ>()
