@@ -5,12 +5,10 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Models.Payment
 {
-    public class CreatePaymentModel
+    public class AuthorizeOrderModel
     {
         public string Provider { get; set; }
 
-        public string Tier { get; set; }
-
-        public decimal Price { get; set; }
+        public string OrderId { get; set; }
     }
 }

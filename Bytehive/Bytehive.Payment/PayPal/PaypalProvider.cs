@@ -24,22 +24,29 @@ namespace Bytehive.Payment.PayPal
 
             var response = await this.paypalClient.Client().Execute(request);
 
-                var result = response.Result<Order>();
+            var result = response.Result<Order>();
 
-                foreach (LinkDescription link in result.Links)
-                {
-                }
+            return result;
+        }
 
-                AmountWithBreakdown amount = result.PurchaseUnits[0].AmountWithBreakdown;
+        public async Task<object> AuthorizeOrder(string orderId)
+        {
+            var request = new OrdersAuthorizeRequest(orderId);
+            request.Prefer("return=representation");
+            request.RequestBody(new AuthorizeRequest());
 
-            return response.Result<Order>();
+            var response = await this.paypalClient.Client().Execute(request);
+
+            var result = response.Result<Order>();
+
+            return result;
         }
 
         private static OrderRequest BuildRequestBody()
         {
             OrderRequest orderRequest = new OrderRequest()
             {
-                CheckoutPaymentIntent = "CAPTURE",
+                CheckoutPaymentIntent = "AUTHORIZE",
 
                 ApplicationContext = new ApplicationContext
                 {

@@ -9,5 +9,7 @@ namespace Bytehive.Payment.Contracts
     public interface IPaymentProvider
     {
         Task<object> CreateOrder();
+
+        Task<object> AuthorizeOrder(string orderId);
     }
 }

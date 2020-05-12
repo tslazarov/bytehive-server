@@ -26,9 +26,19 @@ namespace Bytehive.Controllers
         [HttpPost]
         //[Authorize(Policy = Constants.Strings.Roles.User)]
         [Route("create")]
-        public async Task<ActionResult> Create(CreatePaymentModel model)
+        public async Task<ActionResult> Create(CreateOrderModel model)
         {
             var order = await this.paymentService.CreateOrder(model.Provider);
+
+            return new JsonResult(JsonConvert.SerializeObject(order)) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpPost]
+        //[Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("authorize")]
+        public async Task<ActionResult> Authorize(AuthorizeOrderModel model)
+        {
+            var order = await this.paymentService.AuthorizeOrder(model.Provider, model.OrderId);
 
             return new JsonResult(JsonConvert.SerializeObject(order)) { StatusCode = StatusCodes.Status200OK };
         }
