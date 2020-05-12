@@ -3,6 +3,9 @@ using Bytehive.Controllers;
 using Bytehive.Data;
 using Bytehive.Models.Settings;
 using Bytehive.Notifications;
+using Bytehive.Payment;
+using Bytehive.Payment.Contracts;
+using Bytehive.Payment.PayPal;
 using Bytehive.Scraper;
 using Bytehive.Scraper.Contracts;
 using Bytehive.Services;
@@ -156,14 +159,30 @@ namespace Bytehive
             services.AddTransient<IScrapeRequestsService, ScrapeRequestsService>();
             services.AddTransient<IFilesService, FilesService>();
 
+            services.AddTransient<IPayPalClient, PayPalClient>();
+            services.AddTransient<IPaymentService, PaymentService>();
+
+            services.AddTransient<PaypalProvider>();
+
+            services.AddTransient<PaymentProviderResolver>(serviceProvider => key =>
+            {
+                switch (key)
+                {
+                    case "paypal":
+                        return serviceProvider.GetService<PaypalProvider>();
+                    default:
+                        return serviceProvider.GetService<PaypalProvider>();
+                }
+            });
+
             services.AddTransient<ISendGridSender, SendGridSender>();
+
             services.AddTransient<IScraperClient, ScraperClient>();
             services.AddTransient<IScraperParser, ScraperParser>();
             services.AddTransient<IScraperFileHelper, ScraperFileHelper>();
             services.AddTransient<IScraperProcessor, ScraperProcessor>();
 
             services.AddTransient<IAzureBlobStorageProvider, AzureBlobStorageProvider>();
-
         }
     }
 }
