@@ -1,4 +1,5 @@
-﻿using PayPalHttp;
+﻿using Bytehive.Data.Models;
+using PayPalHttp;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Bytehive.Payment.Contracts
 {
     public interface IPaymentProvider
     {
-        Task<object> CreateOrder();
+        Task<object> CreateOrder(PaymentTier paymentTier);
 
         Task<object> AuthorizeOrder(string orderId);
 

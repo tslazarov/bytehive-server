@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Bytehive.Data.Models;
 using Bytehive.Payment.Contracts;
 using PayPalCheckoutSdk.Orders;
 using PayPalCheckoutSdk.Payments;
@@ -18,11 +19,11 @@ namespace Bytehive.Payment.PayPal
             this.paypalClient = paypalClient;
         }
 
-        public async Task<object> CreateOrder()
+        public async Task<object> CreateOrder(PaymentTier paymentTier)
         {
             OrdersCreateRequest request = new OrdersCreateRequest();
             request.Prefer("return=representation");
-            request.RequestBody(BuildRequestBody());
+            request.RequestBody(BuildRequestBody(paymentTier));
 
             var response = await this.paypalClient.Client().Execute(request);
 
@@ -96,7 +97,7 @@ namespace Bytehive.Payment.PayPal
             return result;
         }
 
-        private static OrderRequest BuildRequestBody()
+        private static OrderRequest BuildRequestBody(PaymentTier paymentTier)
         {
             OrderRequest orderRequest = new OrderRequest()
             {

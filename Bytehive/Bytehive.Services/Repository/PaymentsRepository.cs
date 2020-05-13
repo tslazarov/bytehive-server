@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Services.Repository
 {
-    public class PaymentRepository : IPaymentRepository
+    public class PaymentsRepository : IPaymentsRepository
     { 
         private readonly BytehiveDbContext db;
         private readonly IMapper mapper;
 
-        public PaymentRepository(BytehiveDbContext db,
+        public PaymentsRepository(BytehiveDbContext db,
             IMapper mapper)
         {
             this.db = db;
