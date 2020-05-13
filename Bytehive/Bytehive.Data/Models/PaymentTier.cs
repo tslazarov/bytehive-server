@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Bytehive.Data.Contracts;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,7 +8,7 @@ using System.Text;
 namespace Bytehive.Data.Models
 {
     [Table("payment_tier")]
-    public class PaymentTier
+    public class PaymentTier : IIdentifier
     {
         [Key]
         public Guid Id { get; set; }

@@ -17,7 +17,7 @@ namespace Bytehive.Services
     {
         private readonly IUsersRepository usersRepository;
         private readonly IRolesRepository rolesRepository;
-        private readonly IRefreshTokenRepository refreshTokenRepository;
+        private readonly IRefreshTokensRepository refreshTokenRepository;
         private readonly IUserRolesRepository userRolesRepository;
         private readonly ITokenFactory tokenFactory;
         private readonly IJwtFactory jwtFactory;
@@ -25,7 +25,7 @@ namespace Bytehive.Services
 
         public AccountService(IUsersRepository usersRepository,
             IRolesRepository rolesRepository,
-            IRefreshTokenRepository refreshTokenRepository,
+            IRefreshTokensRepository refreshTokenRepository,
             IUserRolesRepository userRolesRepository,
             ITokenFactory tokenFactory,
             IJwtFactory jwtFactory,

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Services.Contracts.Repository
 {
-    public interface IRefreshTokenRepository
+    public interface IRefreshTokensRepository
     {
         Task<IEnumerable<TModel>> GetAll<TModel>();
  

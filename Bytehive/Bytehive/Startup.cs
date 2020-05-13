@@ -149,7 +149,7 @@ namespace Bytehive
         {
             services.AddTransient<IUsersRepository, UsersRepository>();
             services.AddTransient<IRolesRepository, RolesRepository>();
-            services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddTransient<IRefreshTokensRepository, RefreshTokensRepository>();
             services.AddTransient<IScrapeRequestsRepository, ScrapeRequestsRepository>();
             services.AddTransient<IUserRolesRepository, UserRolesRepository>();
             services.AddTransient<IFilesRepository, FilesRepository>();

@@ -28,7 +28,7 @@ namespace Bytehive.Data
 
         public DbSet<Payment> Payments { get; set; }
 
-        public DbSet<PaymentTier> PaymentTier { get; set; }
+        public DbSet<PaymentTier> PaymentTiers { get; set; }
 
         public DbSet<File> Files { get; set; }
 

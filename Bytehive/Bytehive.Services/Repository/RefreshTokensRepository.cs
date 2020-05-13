@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Services.Repository
 {
-    public class RefreshTokenRepository : IRefreshTokenRepository
+    public class RefreshTokensRepository : IRefreshTokensRepository
     {
         private readonly BytehiveDbContext db;
         private readonly IMapper mapper;
 
-        public RefreshTokenRepository(BytehiveDbContext db,
+        public RefreshTokensRepository(BytehiveDbContext db,
             IMapper mapper)
         {
             this.db = db;
