@@ -37,15 +37,15 @@ namespace Bytehive.Controllers
             this.usersService = usersService;
         }
 
-        //[HttpGet]
-        //[Authorize(Policy = Constants.Strings.Roles.Administrator)]
-        //[Route("all")]
-        //public async Task<ActionResult> All()
-        //{
-        //    var scrapeRequests = await this.paymentsService.GetPayments<ScrapeRequestListViewModel>();
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("all")]
+        public async Task<ActionResult> All()
+        {
+            var scrapeRequests = await this.paymentsService.GetPayments<PaymentListViewModel>();
 
-        //    return new JsonResult(scrapeRequests.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
-        //}
+            return new JsonResult(scrapeRequests.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+        }
 
         [HttpGet]
         [Route("tier/all")]
