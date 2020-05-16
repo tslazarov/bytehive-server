@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Bytehive.Models.ScrapeRequests
+namespace Bytehive.Models.Payment
 {
-    public class ScrapeRequestListViewModel
+    public class PaymentListViewModel
     {
         public Guid Id { get; set; }
 
@@ -16,10 +16,12 @@ namespace Bytehive.Models.ScrapeRequests
 
         public string Email { get; set; }
 
-        public string FileName { get; set; }
+        public string ExternalId { get; set; }
 
-        public int Entries { get; set; }
+        public string Provider { get; set; }
 
-        public ScrapeRequestStatus Status { get; set; }
+        public PaymentStatus Status { get; set; }
+
+        public decimal Price { get; set; }
     }
 }

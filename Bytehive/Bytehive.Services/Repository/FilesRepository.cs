@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Services.Repository
 {
-    public class RefreshTokenRepository : IRefreshTokenRepository
+    public class FilesRepository : IFilesRepository
     {
         private readonly BytehiveDbContext db;
         private readonly IMapper mapper;
 
-        public RefreshTokenRepository(BytehiveDbContext db,
+        public FilesRepository(BytehiveDbContext db,
             IMapper mapper)
         {
             this.db = db;
@@ -27,25 +27,41 @@ namespace Bytehive.Services.Repository
 
         public async Task<IEnumerable<TModel>> GetAll<TModel>()
         {
-            return await this.db.RefreshTokens
+            return await this.db.Files
                   .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                   .ToListAsync();
         }
 
-        public async Task<TModel> Get<TModel>(string tokenValue)
+        public async Task<TModel> Get<TModel>(Guid id)
         {
-            return await this.db.RefreshTokens
-                .Where(u => u.Token == tokenValue)
+            return await this.db.Files
+                .Where(sr => sr.Id == id)
                 .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<bool> Create<TModel>(TModel refreshToken)
+        public async Task<bool> Create<TModel>(TModel file)
         {
-            if (refreshToken is RefreshToken)
+            if (file is File)
             {
-                this.db.RefreshTokens.Add(refreshToken as RefreshToken);
+                this.db.Files.Add(file as File);
 
+                await this.db.SaveChangesAsync();
+
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public async Task<bool> Update<TModel>(TModel file)
+        {
+            if (file is File)
+            {
+                var localFile = file as File;
+                this.db.DetachLocal(localFile, localFile.Id);
+                this.db.Files.Update(localFile);
                 await this.db.SaveChangesAsync();
 
                 return true;
@@ -54,28 +70,20 @@ namespace Bytehive.Services.Repository
             return false;
         }
 
-        public async Task<bool> Update<TModel>(TModel refreshToken)
+        public async Task<bool> Delete(Guid id)
         {
-            if (refreshToken is RefreshToken)
-            {
-                var localRefreshToken = refreshToken as RefreshToken;
-                this.db.DetachLocal(localRefreshToken, localRefreshToken.Id);
-                this.db.RefreshTokens.Update(localRefreshToken);
+            var file = await this.db.Files.FindAsync(id);
 
+            if (file != null)
+            {
+                this.db.Files.Remove(file);
                 await this.db.SaveChangesAsync();
 
                 return true;
+
             }
 
             return false;
-        }
-
-        public async Task Delete(Guid id)
-        {
-            var refreshToken = await this.db.RefreshTokens.FindAsync(id);
-            this.db.RefreshTokens.Remove(refreshToken);
-
-            await this.db.SaveChangesAsync();
         }
     }
 }

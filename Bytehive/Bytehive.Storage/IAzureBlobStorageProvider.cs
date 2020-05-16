@@ -22,5 +22,7 @@ namespace Bytehive.Storage
         Task<BlobDownloadInfo> DownloadBlob(string containerName, string fileName);
 
         Pageable<BlobItem> GetBlobs(string containerName);
+
+        BlobProperties GetBlobProperties(string containerName, string fileName);
     }
 }

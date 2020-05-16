@@ -364,7 +364,7 @@ namespace Bytehive.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("refreshtoken")]
-        public async Task<ActionResult> RefreshToken(RefreshToken model)
+        public async Task<ActionResult> RefreshToken(RefreshTokenModel model)
         {
             var token = await this.accountService.RefreshToken(model.Token);
 

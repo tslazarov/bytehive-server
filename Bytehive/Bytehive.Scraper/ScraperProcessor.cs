@@ -22,18 +22,21 @@ namespace Bytehive.Scraper
         private IScraperParser scraperParser;
         private IScraperFileHelper scraperFileHelper;
         private IScrapeRequestsService scrapeRequestsService;
+        private IFilesService filesService;
 
         public ScraperProcessor(IAzureBlobStorageProvider azureBlobStorage,
             IScraperClient scraperClient,
             IScraperParser scraperParser,
             IScraperFileHelper scraperFileHelper,
-            IScrapeRequestsService scrapeRequestsService)
+            IScrapeRequestsService scrapeRequestsService,
+            IFilesService filesService)
         {
             this.azureBlobStorage = azureBlobStorage;
             this.scraperClient = scraperClient;
             this.scraperParser = scraperParser;
             this.scraperFileHelper = scraperFileHelper;
             this.scrapeRequestsService = scrapeRequestsService;
+            this.filesService = filesService;
         }
 
         public async Task<bool> ProcessScrapeRequest()
@@ -54,10 +57,41 @@ namespace Bytehive.Scraper
 
                     if(exported)
                     {
-                        currentRequest.Status = ScrapeRequestStatus.Completed;
-                        currentRequest.FileName = this.GetFileName(currentRequest.Id, currentRequest.ExportType);
-                        currentRequest.ExpirationDate = DateTime.UtcNow.AddMonths(2);
-                        await this.scrapeRequestsService.Update(currentRequest);
+                        var fileProperties = this.azureBlobStorage.GetBlobProperties(FilesContainerName, this.GetFileName(currentRequest.Id, currentRequest.ExportType));
+
+                        if(fileProperties != null)
+                        {
+                            var currentFile = new File();
+                            currentFile.Id = Guid.NewGuid();
+                            currentFile.Name = this.GetFileName(currentRequest.Id, scrapeSettings.ExportType);
+                            currentFile.ContentLength = fileProperties.ContentLength;
+                            currentFile.ContentType = fileProperties.ContentType;
+                            currentFile.CreatedOn = fileProperties.CreatedOn.DateTime;
+                            currentFile.LastModified = fileProperties.LastModified.DateTime;
+                            currentFile.ScrapeRequestId = currentRequest.Id;
+                            currentFile.ScrapeRequestId = currentRequest.Id;
+
+                            var fileCreated = await this.filesService.Create(currentFile);
+
+                            if(fileCreated)
+                            {
+                                var file = await this.filesService.GetFile<File>(currentFile.Id);
+
+                                currentRequest.Status = ScrapeRequestStatus.Completed;
+                                currentRequest.ExpirationDate = DateTime.UtcNow.AddMonths(2);
+                                currentRequest.Entries = results.Count;
+                                currentRequest.FileId = file.Id;
+                                currentRequest.File = file;
+                                await this.scrapeRequestsService.Update(currentRequest);
+                            }
+                        }
+                        else
+                        {
+                            currentRequest.Status = ScrapeRequestStatus.Completed;
+                            currentRequest.ExpirationDate = DateTime.UtcNow.AddMonths(2);
+                            currentRequest.Entries = results.Count;
+                            await this.scrapeRequestsService.Update(currentRequest);
+                        }
                     }
                 }
                 catch(Exception ex)
@@ -326,7 +360,7 @@ namespace Bytehive.Scraper
             var json = JsonConvert.SerializeObject(entries, Formatting.Indented);
 
             var fileStream = this.scraperFileHelper.GenerateStreamFromString(json);
-            var blobContent = await this.azureBlobStorage.UploadBlob("scrapefiles", fileName, ".json", fileStream);
+            var blobContent = await this.azureBlobStorage.UploadBlob(FilesContainerName, fileName, ".json", fileStream);
 
             return blobContent != null;
         }
@@ -338,7 +372,7 @@ namespace Bytehive.Scraper
             var xml = this.scraperFileHelper.SerializeToXml(entries);
 
             var fileStream = this.scraperFileHelper.GenerateStreamFromString(xml);
-            var blobContent = await this.azureBlobStorage.UploadBlob("scrapefiles", fileName, ".xml", fileStream);
+            var blobContent = await this.azureBlobStorage.UploadBlob(FilesContainerName, fileName, ".xml", fileStream);
 
             return blobContent != null;
         }
@@ -350,7 +384,7 @@ namespace Bytehive.Scraper
             var txt = this.scraperFileHelper.SerializeToTxt(entries);
 
             var fileStream = this.scraperFileHelper.GenerateStreamFromString(txt);
-            var blobContent = await this.azureBlobStorage.UploadBlob("scrapefiles", fileName, ".csv", fileStream);
+            var blobContent = await this.azureBlobStorage.UploadBlob(FilesContainerName, fileName, ".csv", fileStream);
 
             return blobContent != null;
         }
@@ -362,7 +396,7 @@ namespace Bytehive.Scraper
             var txt = this.scraperFileHelper.SerializeToTxt(entries);
 
             var fileStream = this.scraperFileHelper.GenerateStreamFromString(txt);
-            var blobContent = await this.azureBlobStorage.UploadBlob("scrapefiles", fileName, ".txt", fileStream);
+            var blobContent = await this.azureBlobStorage.UploadBlob(FilesContainerName, fileName, ".txt", fileStream);
 
             return blobContent != null;
         }
@@ -391,5 +425,7 @@ namespace Bytehive.Scraper
 
             return fileName;
         }
+
+        public static readonly string FilesContainerName = "scrapefiles";
     }
 }

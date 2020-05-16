@@ -3,6 +3,9 @@ using Bytehive.Controllers;
 using Bytehive.Data;
 using Bytehive.Models.Settings;
 using Bytehive.Notifications;
+using Bytehive.Payment;
+using Bytehive.Payment.Contracts;
+using Bytehive.Payment.PayPal;
 using Bytehive.Scraper;
 using Bytehive.Scraper.Contracts;
 using Bytehive.Services;
@@ -146,22 +149,44 @@ namespace Bytehive
         {
             services.AddTransient<IUsersRepository, UsersRepository>();
             services.AddTransient<IRolesRepository, RolesRepository>();
-            services.AddTransient<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddTransient<IRefreshTokensRepository, RefreshTokensRepository>();
             services.AddTransient<IScrapeRequestsRepository, ScrapeRequestsRepository>();
             services.AddTransient<IUserRolesRepository, UserRolesRepository>();
+            services.AddTransient<IFilesRepository, FilesRepository>();
+            services.AddTransient<IPaymentsRepository, PaymentsRepository>();
+            services.AddTransient<IPaymentTiersRepository, PaymentTiersRepository>();
 
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IScrapeRequestsService, ScrapeRequestsService>();
+            services.AddTransient<IFilesService, FilesService>();
+            services.AddTransient<IPaymentsService, PaymentsService>();
+            services.AddTransient<IPaymentTiersService, PaymentTiersService>();
+
+            services.AddTransient<IPayPalClient, PayPalClient>();
+            services.AddTransient<IOrdersService, OrdersService>();
+
+            services.AddTransient<PaypalProvider>();
+
+            services.AddTransient<PaymentProviderResolver>(serviceProvider => key =>
+            {
+                switch (key)
+                {
+                    case "paypal":
+                        return serviceProvider.GetService<PaypalProvider>();
+                    default:
+                        return serviceProvider.GetService<PaypalProvider>();
+                }
+            });
 
             services.AddTransient<ISendGridSender, SendGridSender>();
+
             services.AddTransient<IScraperClient, ScraperClient>();
             services.AddTransient<IScraperParser, ScraperParser>();
             services.AddTransient<IScraperFileHelper, ScraperFileHelper>();
             services.AddTransient<IScraperProcessor, ScraperProcessor>();
 
             services.AddTransient<IAzureBlobStorageProvider, AzureBlobStorageProvider>();
-
         }
     }
 }

@@ -51,11 +51,15 @@ namespace Bytehive.Data.Models
 
         public string Provider { get; set; }
 
+        public int Tokens { get; set; }
+
         public Occupation Occupation { get; set; }
 
         public DateTime RegistrationDate { get; set; }
 
         public virtual ICollection<ScrapeRequest> ScrapeRequests { get; set; } = new List<ScrapeRequest>();
+
+        public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
 

@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Bytehive.Data.Models;
 using Bytehive.Models.Account;
+using Bytehive.Models.Payment;
 using Bytehive.Models.ScrapeRequests;
 using Bytehive.Models.Users;
 using Bytehive.Services.Utilities;
 using Newtonsoft.Json;
+using PayPalCheckoutSdk.Orders;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -35,9 +37,15 @@ namespace Bytehive.Services.Infrastructure
                 .ForMember(m => m.CreationDate, map => map.MapFrom(source => DateTime.UtcNow));
 
             this.CreateMap<ScrapeRequest, ScrapeRequestListViewModel>()
-                .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
+                .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty))
+                .ForMember(m => m.FileName, map => map.MapFrom(source => source.File != null ? source.File.Name : string.Empty));
 
             this.CreateMap<ScrapeRequest, ScrapeRequestDetailViewModel>()
+                .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
+
+            this.CreateMap<PaymentTier, PaymentTierListViewModel>();
+
+            this.CreateMap<Data.Models.Payment, PaymentListViewModel>()
                 .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
         }
     }

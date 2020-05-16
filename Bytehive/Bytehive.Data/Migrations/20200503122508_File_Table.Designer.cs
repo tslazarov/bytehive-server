@@ -4,14 +4,16 @@ using Bytehive.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bytehive.Data.Migrations
 {
     [DbContext(typeof(BytehiveDbContext))]
-    partial class BytehiveDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200503122508_File_Table")]
+    partial class File_Table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,6 +54,9 @@ namespace Bytehive.Data.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("MyProperty")
+                        .HasColumnType("int");
 
                     b.Property<string>("NameBG")
                         .HasColumnType("nvarchar(max)");
@@ -94,65 +99,6 @@ namespace Bytehive.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("file");
-                });
-
-            modelBuilder.Entity("Bytehive.Data.Models.Payment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ExternalId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("PaymentTierId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Provider")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PaymentTierId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("payment");
-                });
-
-            modelBuilder.Entity("Bytehive.Data.Models.PaymentTier", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Sku")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("payment_tier");
                 });
 
             modelBuilder.Entity("Bytehive.Data.Models.RefreshToken", b =>
@@ -277,9 +223,6 @@ namespace Bytehive.Data.Migrations
                     b.Property<string>("Salt")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Tokens")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.HasIndex("Email", "Provider")
@@ -318,21 +261,6 @@ namespace Bytehive.Data.Migrations
                     b.HasOne("Bytehive.Data.Models.ScrapeRequest", "ScrapeRequest")
                         .WithOne("File")
                         .HasForeignKey("Bytehive.Data.Models.File", "ScrapeRequestId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Bytehive.Data.Models.Payment", b =>
-                {
-                    b.HasOne("Bytehive.Data.Models.PaymentTier", "PaymentTier")
-                        .WithMany("Payments")
-                        .HasForeignKey("PaymentTierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Bytehive.Data.Models.User", "User")
-                        .WithMany("Payments")
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

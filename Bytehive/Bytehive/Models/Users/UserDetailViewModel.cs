@@ -21,5 +21,7 @@ namespace Bytehive.Models.Users
         public Occupation Occupation { get; set; }
 
         public Language DefaultLanguage { get; set; }
+
+        public int Tokens { get; set; }
     }
 }

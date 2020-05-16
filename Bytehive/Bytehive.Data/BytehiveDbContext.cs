@@ -26,6 +26,12 @@ namespace Bytehive.Data
 
         public DbSet<FAQCategory> FAQCategories { get; set; }
 
+        public DbSet<Payment> Payments { get; set; }
+
+        public DbSet<PaymentTier> PaymentTiers { get; set; }
+
+        public DbSet<File> Files { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<User>().ToTable("user");
@@ -33,7 +39,10 @@ namespace Bytehive.Data
             builder.Entity<Role>().ToTable("role");
             builder.Entity<FAQ>().ToTable("faq");
             builder.Entity<FAQCategory>().ToTable("faq_category");
+            builder.Entity<Payment>().ToTable("payment");
+            builder.Entity<PaymentTier>().ToTable("payment_tier");
             builder.Entity<ScrapeRequest>().ToTable("scrape_request");
+            builder.Entity<File>().ToTable("file");
             builder.Entity<RefreshToken>().ToTable("refresh_token");
 
             builder
@@ -52,6 +61,18 @@ namespace Bytehive.Data
                 .HasOne(sr => sr.User)
                 .WithMany(u => u.RefreshTokens)
                 .HasForeignKey(sr => sr.UserId);
+
+            builder
+                .Entity<Payment>()
+                .HasOne(sr => sr.User)
+                .WithMany(u => u.Payments)
+                .HasForeignKey(sr => sr.UserId);
+
+            builder
+                .Entity<Payment>()
+                .HasOne(f => f.PaymentTier)
+                .WithMany(u => u.Payments)
+                .HasForeignKey(f => f.PaymentTierId);
 
             builder
                 .Entity<FAQ>()
@@ -74,6 +95,11 @@ namespace Bytehive.Data
                 .HasOne(ur => ur.User)
                 .WithMany(u => u.UserRoles)
                 .HasForeignKey(ur => ur.UserId);
+
+            builder.Entity<ScrapeRequest>()
+                .HasOne(sr => sr.File)
+                .WithOne(f => f.ScrapeRequest)
+                .HasForeignKey<File>(b => b.ScrapeRequestId);
 
             base.OnModelCreating(builder);
         }

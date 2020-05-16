@@ -21,10 +21,12 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.2" />
     <PackageReference Include="Microsoft.Owin.Security.OAuth" Version="4.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="PayPalHttp" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Bytehive.Notifications\Bytehive.Notifications.csproj" />
+    <ProjectReference Include="..\Bytehive.Payment\Bytehive.Payment.csproj" />
     <ProjectReference Include="..\Bytehive.Scraper\Bytehive.Scraper.csproj" />
     <ProjectReference Include="..\Bytehive.Services\Bytehive.Services.csproj" />
   </ItemGroup>
