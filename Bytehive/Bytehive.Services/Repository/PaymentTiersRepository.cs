@@ -40,6 +40,14 @@ namespace Bytehive.Services.Repository
                 .FirstOrDefaultAsync();
         }
 
+        public async Task<TModel> Get<TModel>(string name)
+        {
+            return await this.db.PaymentTiers
+                .Where(u => u.Name.ToLower() == name.ToLower())
+                .ProjectTo<TModel>(this.mapper.ConfigurationProvider)
+                .FirstOrDefaultAsync();
+        }
+
         public async Task<bool> Create<TModel>(TModel paymentTier)
         {
             if (paymentTier is PaymentTier)

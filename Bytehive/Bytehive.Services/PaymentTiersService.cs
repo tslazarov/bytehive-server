@@ -23,6 +23,11 @@ namespace Bytehive.Services
             return await this.paymentTiersRepository.Get<TModel>(id);
         }
 
+        public async Task<TModel> GetPaymentTier<TModel>(string name)
+        {
+            return await this.paymentTiersRepository.Get<TModel>(name);
+        }
+
         public async Task<IEnumerable<TModel>> GetPaymentTiers<TModel>()
         {
             return await this.paymentTiersRepository.GetAll<TModel>();

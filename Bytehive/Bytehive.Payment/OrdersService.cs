@@ -1,4 +1,5 @@
-﻿using Bytehive.Payment.Contracts;
+﻿using Bytehive.Data.Models;
+using Bytehive.Payment.Contracts;
 using Bytehive.Payment.PayPal;
 using System;
 using System.Collections.Generic;
@@ -7,21 +8,21 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Payment
 {
-    public class PaymentService : IPaymentService
+    public class OrdersService : IOrdersService
     {
         IPaymentProvider provider;
         PaymentProviderResolver providerResolver;
 
-        public PaymentService(PaymentProviderResolver providerResolver)
+        public OrdersService(PaymentProviderResolver providerResolver)
         {
             this.providerResolver = providerResolver;
         }
 
-        public async Task<object> CreateOrder(string providerName)
+        public async Task<object> CreateOrder(string providerName, PaymentTier paymentTier)
         {
             this.provider = this.providerResolver(providerName);
 
-            var order = await this.provider.CreateOrder();
+            var order = await this.provider.CreateOrder(paymentTier);
 
             return order;
         }

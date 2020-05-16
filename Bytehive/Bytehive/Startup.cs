@@ -153,14 +153,18 @@ namespace Bytehive
             services.AddTransient<IScrapeRequestsRepository, ScrapeRequestsRepository>();
             services.AddTransient<IUserRolesRepository, UserRolesRepository>();
             services.AddTransient<IFilesRepository, FilesRepository>();
+            services.AddTransient<IPaymentsRepository, PaymentsRepository>();
+            services.AddTransient<IPaymentTiersRepository, PaymentTiersRepository>();
 
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IScrapeRequestsService, ScrapeRequestsService>();
             services.AddTransient<IFilesService, FilesService>();
+            services.AddTransient<IPaymentsService, PaymentsService>();
+            services.AddTransient<IPaymentTiersService, PaymentTiersService>();
 
             services.AddTransient<IPayPalClient, PayPalClient>();
-            services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<IOrdersService, OrdersService>();
 
             services.AddTransient<PaypalProvider>();
 

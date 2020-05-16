@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Bytehive.Data.Models;
 using Bytehive.Models.Account;
+using Bytehive.Models.Payment;
 using Bytehive.Models.ScrapeRequests;
 using Bytehive.Models.Users;
 using Bytehive.Services.Utilities;
@@ -41,6 +42,8 @@ namespace Bytehive.Services.Infrastructure
 
             this.CreateMap<ScrapeRequest, ScrapeRequestDetailViewModel>()
                 .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
+
+            this.CreateMap<PaymentTier, PaymentTierListViewModel>();
         }
     }
 }

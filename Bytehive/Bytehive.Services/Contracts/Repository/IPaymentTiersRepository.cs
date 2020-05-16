@@ -12,6 +12,8 @@ namespace Bytehive.Services.Contracts.Repository
  
         Task<TModel> Get<TModel>(Guid id);
 
+        Task<TModel> Get<TModel>(string name);
+
         Task<bool> Create<TModel>(TModel paymentTier);
 
         Task<bool> Update<TModel>(TModel paymentTier);

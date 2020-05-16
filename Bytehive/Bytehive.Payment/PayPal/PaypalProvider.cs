@@ -99,59 +99,48 @@ namespace Bytehive.Payment.PayPal
 
         private static OrderRequest BuildRequestBody(PaymentTier paymentTier)
         {
-            OrderRequest orderRequest = new OrderRequest()
-            {
-                CheckoutPaymentIntent = "AUTHORIZE",
+            OrderRequest orderRequest = new OrderRequest();
+            orderRequest.CheckoutPaymentIntent = "AUTHORIZE";
 
-                ApplicationContext = new ApplicationContext
-                {
-                    BrandName = "Bytehive",
-                    LandingPage = "BILLING",
-                    UserAction = "CONTINUE",
-                    ShippingPreference = "NO_SHIPPING"
-                },
-                PurchaseUnits = new List<PurchaseUnitRequest>
-        {
-          new PurchaseUnitRequest{
-            ReferenceId =  "PUHF",
-            Description = "Sporting Goods",
-            CustomId = "CUST-HighFashions",
-            SoftDescriptor = "HighFashions",
-            AmountWithBreakdown = new AmountWithBreakdown
-            {
-              CurrencyCode = "EUR",
-              Value = "10.00",
-              AmountBreakdown = new AmountBreakdown
-              {
-                ItemTotal = new PayPalCheckoutSdk.Orders.Money
-                {
-                  CurrencyCode = "EUR",
-                  Value = "10.00"
-                }
-              }
-            },
-            Items = new List<Item>
-            {
-              new Item
-              {
-                Name = "Enterprise",
-                Description = "Payment tier",
-                Sku = "sku01",
-                UnitAmount = new PayPalCheckoutSdk.Orders.Money
-                {
-                  CurrencyCode = "EUR",
-                  Value = "10.00"
-                },
-                Quantity = "1",
-                Category = "PHYSICAL_GOODS"
-              }
-            }
-          }
-        }
-            };
+            orderRequest.ApplicationContext = new ApplicationContext();
+            orderRequest.ApplicationContext.BrandName = "Bytehive";
+            orderRequest.ApplicationContext.LandingPage = "BILLING";
+            orderRequest.ApplicationContext.UserAction = "CONTINUE";
+            orderRequest.ApplicationContext.ShippingPreference = "NO_SHIPPING";
+
+            orderRequest.PurchaseUnits = new List<PurchaseUnitRequest>();
+
+            var purchaseUnitRequest = new PurchaseUnitRequest();
+            purchaseUnitRequest.ReferenceId = "PUHF";
+            purchaseUnitRequest.Description = "Bytehive Tier";
+            purchaseUnitRequest.CustomId = string.Format("CUST-{0}", paymentTier.Name.ToUpper());
+            purchaseUnitRequest.SoftDescriptor = paymentTier.Name;
+
+            purchaseUnitRequest.AmountWithBreakdown = new AmountWithBreakdown();
+            purchaseUnitRequest.AmountWithBreakdown.CurrencyCode = "EUR";
+            purchaseUnitRequest.AmountWithBreakdown.Value = paymentTier.Price.ToString();
+
+            purchaseUnitRequest.AmountWithBreakdown.AmountBreakdown = new AmountBreakdown();
+            purchaseUnitRequest.AmountWithBreakdown.AmountBreakdown.ItemTotal = new PayPalCheckoutSdk.Orders.Money();
+            purchaseUnitRequest.AmountWithBreakdown.AmountBreakdown.ItemTotal.CurrencyCode = "EUR";
+            purchaseUnitRequest.AmountWithBreakdown.AmountBreakdown.ItemTotal.Value = paymentTier.Price.ToString();
+
+            purchaseUnitRequest.Items = new List<Item>();
+
+            var item = new Item();
+            item.Name = paymentTier.Name;
+            item.Sku = paymentTier.Sku;
+            item.UnitAmount = new PayPalCheckoutSdk.Orders.Money();
+            item.UnitAmount.CurrencyCode = "EUR";
+            item.UnitAmount.Value = paymentTier.Price.ToString();
+            item.Quantity = "1";
+            item.Category = "DIGITAL_GOODS";
+
+            purchaseUnitRequest.Items.Add(item);
+
+            orderRequest.PurchaseUnits.Add(purchaseUnitRequest);
 
             return orderRequest;
         }
-
     }
 }

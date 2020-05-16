@@ -9,6 +9,8 @@ namespace Bytehive.Services.Contracts.Services
     {
         Task<TModel> GetPaymentTier<TModel>(Guid id);
 
+        Task<TModel> GetPaymentTier<TModel>(string name);
+
         Task<IEnumerable<TModel>> GetPaymentTiers<TModel>();
 
         Task<bool> Create(PaymentTier paymentTier);
