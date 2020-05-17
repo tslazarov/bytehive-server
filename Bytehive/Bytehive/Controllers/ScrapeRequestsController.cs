@@ -47,6 +47,28 @@ namespace Bytehive.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("all/profile")]
+        public async Task<ActionResult> AllProfile()
+        {
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+
+            if (identity != null)
+            {
+                Guid id;
+
+                if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
+                {
+                    var scrapeRequests = await this.scrapeRequestsService.GetScrapeRequests<ScrapeRequestProfileListViewModel>();
+
+                    return new JsonResult(scrapeRequests.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+                }
+            }
+
+            return new JsonResult(new List<object>()) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
         [Authorize(Policy = Constants.Strings.Roles.Administrator)]
         [Route("detail")]
         public async Task<ActionResult> Detail(string id)
@@ -77,7 +99,7 @@ namespace Bytehive.Controllers
 
                 if (scrapeRequest != null && scrapeRequest.File != null)
                 {
-                    if((!string.IsNullOrEmpty(scrapeRequest.ValidationKey) && scrapeRequest.ValidationKey == token) || (identity != null && identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Role)?.Value == Constants.Strings.Roles.Administrator))
+                    if((!string.IsNullOrEmpty(scrapeRequest.AccessKey) && scrapeRequest.AccessKey == token) || (identity != null && identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Role)?.Value == Constants.Strings.Roles.Administrator))
                     {
                         var file = await this.azureBlobStorageProvider.DownloadBlob(ScraperProcessor.FilesContainerName, scrapeRequest.File.Name);
 

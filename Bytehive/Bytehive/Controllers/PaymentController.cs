@@ -47,13 +47,25 @@ namespace Bytehive.Controllers
         }
 
         [HttpGet]
-        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
         [Route("all/profile")]
         public async Task<ActionResult> AllProfile()
         {
-            var payments = await this.paymentsService.GetPayments<PaymentProfileListViewModel>();
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
 
-            return new JsonResult(payments.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+            if (identity != null)
+            {
+                Guid id;
+
+                if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
+                {
+                    var payments = await this.paymentsService.GetPayments<PaymentProfileListViewModel>();
+
+                    return new JsonResult(payments.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+                }
+            }
+
+            return new JsonResult(new List<object>()) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpGet]
