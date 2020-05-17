@@ -47,6 +47,23 @@ namespace Bytehive.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("detail")]
+        public async Task<ActionResult> Detail(string id)
+        {
+            Guid parsedId;
+
+            if (Guid.TryParse(id, out parsedId))
+            {
+                PaymentDetailViewModel payment = await this.paymentsService.GetPayment<PaymentDetailViewModel>(parsedId);
+
+                return new JsonResult(payment) { StatusCode = StatusCodes.Status200OK };
+            }
+
+            return new JsonResult(null) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
         [Route("tier/all")]
         public async Task<ActionResult> TierAll()
         {
