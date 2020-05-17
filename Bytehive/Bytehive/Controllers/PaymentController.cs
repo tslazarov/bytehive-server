@@ -143,5 +143,28 @@ namespace Bytehive.Controllers
 
             return new JsonResult(false) { StatusCode = StatusCodes.Status200OK };
         }
+
+        [HttpDelete]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("delete")]
+        public async Task<ActionResult> Delete(string id)
+        {
+            Guid parsedId;
+            bool deleted = false;
+
+            if (Guid.TryParse(id, out parsedId))
+            {
+                var payment = await this.paymentsService.GetPayment<Data.Models.Payment>(parsedId);
+
+                if (payment != null)
+                {
+                    deleted = await this.paymentsService.Delete(payment);
+                }
+            }
+
+            var statusCode = deleted ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest;
+
+            return new JsonResult(deleted) { StatusCode = statusCode };
+        }
     }
 }

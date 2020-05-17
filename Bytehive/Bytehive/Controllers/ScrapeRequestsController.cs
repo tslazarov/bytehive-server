@@ -139,7 +139,6 @@ namespace Bytehive.Controllers
                 if (scrapeRequest != null)
                 {
                     deleted = await this.scrapeRequestsService.Delete(scrapeRequest);
-
                 }
             }
 
