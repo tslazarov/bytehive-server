@@ -41,9 +41,19 @@ namespace Bytehive.Controllers
         [Route("all")]
         public async Task<ActionResult> All()
         {
-            var scrapeRequests = await this.paymentsService.GetPayments<PaymentListViewModel>();
+            var payments = await this.paymentsService.GetPayments<PaymentListViewModel>();
 
-            return new JsonResult(scrapeRequests.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+            return new JsonResult(payments.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("all/profile")]
+        public async Task<ActionResult> AllProfile()
+        {
+            var payments = await this.paymentsService.GetPayments<PaymentProfileListViewModel>();
+
+            return new JsonResult(payments.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpGet]
