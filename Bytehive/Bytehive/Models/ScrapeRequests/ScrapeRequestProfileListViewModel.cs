@@ -16,6 +16,8 @@ namespace Bytehive.Models.ScrapeRequests
 
         public string FileName { get; set; }
 
+        public string ContentType { get; set; }
+
         public int Entries { get; set; }
 
         public ScrapeRequestStatus Status { get; set; }
