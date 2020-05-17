@@ -1,7 +1,6 @@
 ﻿using Bytehive.Data.Models;
 using Bytehive.Models.Payment;
-using Bytehive.Payment;
-using Bytehive.Payment.Contracts;
+using Bytehive.Payments.Contracts;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Utilities;
 using Microsoft.AspNetCore.Authorization;
@@ -87,7 +86,7 @@ namespace Bytehive.Controllers
 
             var capture = payment as PayPalCheckoutSdk.Payments.Capture;
 
-            if(capture.Status == "PENDING" || capture.Status == "COMPLETED")
+            if(capture.Status != "CANCELLED" && capture.Status != "FAILED")
             {
                 ClaimsIdentity identity = User.Identity as ClaimsIdentity;
 
@@ -109,12 +108,12 @@ namespace Bytehive.Controllers
 
                                 if(paymentTier != null)
                                 {
-                                    var newPayment = new Bytehive.Data.Models.Payment();
+                                    var newPayment = new Payment();
                                     newPayment.Id = Guid.NewGuid();
                                     newPayment.CreationDate = DateTime.UtcNow;
                                     newPayment.ExternalId = model.OrderId;
                                     newPayment.Provider = model.Provider;
-                                    newPayment.Status = capture.Status == "PENDING" ? PaymentStatus.Pending : PaymentStatus.Completed;
+                                    newPayment.Status = PaymentStatus.Completed;
                                     newPayment.UserId = id;
                                     newPayment.Price = paymentTier.Price;
                                     newPayment.PaymentTierId = paymentTier.Id;
@@ -154,7 +153,7 @@ namespace Bytehive.Controllers
 
             if (Guid.TryParse(id, out parsedId))
             {
-                var payment = await this.paymentsService.GetPayment<Data.Models.Payment>(parsedId);
+                var payment = await this.paymentsService.GetPayment<Payment>(parsedId);
 
                 if (payment != null)
                 {

@@ -1,5 +1,5 @@
-﻿using Bytehive.Payment.AppConfig;
-using Bytehive.Payment.Contracts;
+﻿using Bytehive.Payments.AppConfig;
+using Bytehive.Payments.Contracts;
 using PayPalCheckoutSdk.Core;
 using PayPalHttp;
 using System;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
-namespace Bytehive.Payment.PayPal
+namespace Bytehive.Payments.PayPal
 {
     public class PayPalClient : IPayPalClient
     {

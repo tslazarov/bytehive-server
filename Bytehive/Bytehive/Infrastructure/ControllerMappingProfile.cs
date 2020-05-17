@@ -45,7 +45,7 @@ namespace Bytehive.Services.Infrastructure
 
             this.CreateMap<PaymentTier, PaymentTierListViewModel>();
 
-            this.CreateMap<Data.Models.Payment, PaymentListViewModel>()
+            this.CreateMap<Payment, PaymentListViewModel>()
                 .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
         }
     }

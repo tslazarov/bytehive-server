@@ -1,12 +1,12 @@
 ﻿using Bytehive.Data.Models;
-using Bytehive.Payment.Contracts;
-using Bytehive.Payment.PayPal;
+using Bytehive.Payments.Contracts;
+using Bytehive.Payments.PayPal;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bytehive.Payment
+namespace Bytehive.Payments
 {
     public class OrdersService : IOrdersService
     {

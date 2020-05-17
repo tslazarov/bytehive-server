@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Bytehive.Payment.Contracts
+namespace Bytehive.Payments.Contracts
 {
     public interface IOrdersService
     {
