@@ -21,5 +21,7 @@ namespace Bytehive.Models.ScrapeRequests
         public int Entries { get; set; }
 
         public ScrapeRequestStatus Status { get; set; }
+
+        public Guid UserId { get; set; }
     }
 }

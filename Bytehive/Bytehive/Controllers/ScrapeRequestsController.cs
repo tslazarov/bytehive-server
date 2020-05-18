@@ -63,8 +63,9 @@ namespace Bytehive.Controllers
                 if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
                 {
                     var scrapeRequests = await this.scrapeRequestsService.GetScrapeRequests<ScrapeRequestProfileListViewModel>();
+                    var filteredRequests = scrapeRequests.Where(r => r.UserId == id);
 
-                    return new JsonResult(scrapeRequests.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+                    return new JsonResult(filteredRequests.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
                 }
             }
 
@@ -86,6 +87,40 @@ namespace Bytehive.Controllers
             }
 
             return new JsonResult(null) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("detail/profile")]
+        public async Task<ActionResult> DetailProfile(string id)
+        {
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+
+            if (identity != null)
+            {
+                Guid userId;
+
+                if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out userId))
+                {
+                    Guid parsedId;
+
+                    if (Guid.TryParse(id, out parsedId))
+                    {
+                        ScrapeRequestDetailViewModel scrapeRequest = await this.scrapeRequestsService.GetScrapeRequest<ScrapeRequestDetailViewModel>(parsedId);
+
+                        if (scrapeRequest.UserId == userId)
+                        {
+                            return new JsonResult(scrapeRequest) { StatusCode = StatusCodes.Status200OK };
+                        }
+                        else
+                        {
+                            return new JsonResult(new object()) { StatusCode = StatusCodes.Status200OK };
+                        }
+                    }
+                }
+            }
+
+            return new JsonResult(new object()) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpGet]
