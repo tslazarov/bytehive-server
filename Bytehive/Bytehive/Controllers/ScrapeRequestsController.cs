@@ -125,7 +125,7 @@ namespace Bytehive.Controllers
 
         [HttpGet]
         [Route("file/{id}")]
-        public async Task<ActionResult> DownloadFile(string id, string token)
+        public async Task<ActionResult> DownloadFile(string id, string accessKey)
         {
             Guid parsedId;
             Guid userId;
@@ -137,7 +137,7 @@ namespace Bytehive.Controllers
 
                 if (scrapeRequest != null && scrapeRequest.File != null)
                 {
-                    var hasKey = (!string.IsNullOrEmpty(scrapeRequest.AccessKey) && scrapeRequest.AccessKey == token);
+                    var hasKey = (!string.IsNullOrEmpty(scrapeRequest.AccessKey) && scrapeRequest.AccessKey == accessKey);
                     var isAdministrator = (identity != null && identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Role)?.Value == Constants.Strings.Roles.Administrator);
                     var isOwner = (identity != null && Guid.TryParse(identity.FindFirst("id")?.Value, out userId) && userId == scrapeRequest.UserId);
                    
