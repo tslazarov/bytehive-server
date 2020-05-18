@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Bytehive.Data.Models;
-using Bytehive.Payment.Contracts;
+using Bytehive.Payments.Contracts;
 using PayPalCheckoutSdk.Orders;
 using PayPalCheckoutSdk.Payments;
 using PayPalHttp;
 
-namespace Bytehive.Payment.PayPal
+namespace Bytehive.Payments.PayPal
 {
     public class PaypalProvider : IPaymentProvider
     {

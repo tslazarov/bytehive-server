@@ -38,15 +38,30 @@ namespace Bytehive.Services.Infrastructure
 
             this.CreateMap<ScrapeRequest, ScrapeRequestListViewModel>()
                 .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty))
-                .ForMember(m => m.FileName, map => map.MapFrom(source => source.File != null ? source.File.Name : string.Empty));
+                .ForMember(m => m.FileName, map => map.MapFrom(source => source.File != null ? source.File.Name : string.Empty))
+                .ForMember(m => m.ContentType, map => map.MapFrom(source => source.File != null ? source.File.ContentType : string.Empty));
+
+            this.CreateMap<ScrapeRequest, ScrapeRequestProfileListViewModel>()
+                .ForMember(m => m.FileName, map => map.MapFrom(source => source.File != null ? source.File.Name : string.Empty))
+                .ForMember(m => m.ContentType, map => map.MapFrom(source => source.File != null ? source.File.ContentType : string.Empty));
 
             this.CreateMap<ScrapeRequest, ScrapeRequestDetailViewModel>()
                 .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
 
             this.CreateMap<PaymentTier, PaymentTierListViewModel>();
 
-            this.CreateMap<Data.Models.Payment, PaymentListViewModel>()
+            this.CreateMap<Payment, PaymentListViewModel>()
                 .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
+
+            this.CreateMap<Payment, PaymentProfileListViewModel>()
+                .ForMember(m => m.TierName, map => map.MapFrom(source => source.PaymentTier != null ? source.PaymentTier.Name : string.Empty))
+                .ForMember(m => m.TierValue, map => map.MapFrom(source => source.PaymentTier != null ? source.PaymentTier.Value : 0));
+
+            this.CreateMap<Payment, PaymentDetailViewModel>()
+                .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty))
+                .ForMember(m => m.TierName, map => map.MapFrom(source => source.PaymentTier != null ? source.PaymentTier.Name : string.Empty))
+                .ForMember(m => m.TierSku, map => map.MapFrom(source => source.PaymentTier != null ? source.PaymentTier.Sku : string.Empty))
+                .ForMember(m => m.TierValue, map => map.MapFrom(source => source.PaymentTier != null ? source.PaymentTier.Value : 0));
         }
     }
 }

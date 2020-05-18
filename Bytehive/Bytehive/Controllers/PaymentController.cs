@@ -1,7 +1,6 @@
 ﻿using Bytehive.Data.Models;
 using Bytehive.Models.Payment;
-using Bytehive.Payment;
-using Bytehive.Payment.Contracts;
+using Bytehive.Payments.Contracts;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Utilities;
 using Microsoft.AspNetCore.Authorization;
@@ -42,9 +41,48 @@ namespace Bytehive.Controllers
         [Route("all")]
         public async Task<ActionResult> All()
         {
-            var scrapeRequests = await this.paymentsService.GetPayments<PaymentListViewModel>();
+            var payments = await this.paymentsService.GetPayments<PaymentListViewModel>();
 
-            return new JsonResult(scrapeRequests.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+            return new JsonResult(payments.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("all/profile")]
+        public async Task<ActionResult> AllProfile()
+        {
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+
+            if (identity != null)
+            {
+                Guid id;
+
+                if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
+                {
+                    var payments = await this.paymentsService.GetPayments<PaymentProfileListViewModel>();
+
+                    return new JsonResult(payments.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+                }
+            }
+
+            return new JsonResult(new List<object>()) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("detail")]
+        public async Task<ActionResult> Detail(string id)
+        {
+            Guid parsedId;
+
+            if (Guid.TryParse(id, out parsedId))
+            {
+                PaymentDetailViewModel payment = await this.paymentsService.GetPayment<PaymentDetailViewModel>(parsedId);
+
+                return new JsonResult(payment) { StatusCode = StatusCodes.Status200OK };
+            }
+
+            return new JsonResult(null) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpGet]
@@ -87,7 +125,7 @@ namespace Bytehive.Controllers
 
             var capture = payment as PayPalCheckoutSdk.Payments.Capture;
 
-            if(capture.Status == "PENDING" || capture.Status == "COMPLETED")
+            if(capture.Status != "CANCELLED" && capture.Status != "FAILED")
             {
                 ClaimsIdentity identity = User.Identity as ClaimsIdentity;
 
@@ -109,12 +147,12 @@ namespace Bytehive.Controllers
 
                                 if(paymentTier != null)
                                 {
-                                    var newPayment = new Bytehive.Data.Models.Payment();
+                                    var newPayment = new Payment();
                                     newPayment.Id = Guid.NewGuid();
                                     newPayment.CreationDate = DateTime.UtcNow;
                                     newPayment.ExternalId = model.OrderId;
                                     newPayment.Provider = model.Provider;
-                                    newPayment.Status = capture.Status == "PENDING" ? PaymentStatus.Pending : PaymentStatus.Completed;
+                                    newPayment.Status = PaymentStatus.Completed;
                                     newPayment.UserId = id;
                                     newPayment.Price = paymentTier.Price;
                                     newPayment.PaymentTierId = paymentTier.Id;
@@ -142,6 +180,29 @@ namespace Bytehive.Controllers
             }
 
             return new JsonResult(false) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpDelete]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("delete")]
+        public async Task<ActionResult> Delete(string id)
+        {
+            Guid parsedId;
+            bool deleted = false;
+
+            if (Guid.TryParse(id, out parsedId))
+            {
+                var payment = await this.paymentsService.GetPayment<Payment>(parsedId);
+
+                if (payment != null)
+                {
+                    deleted = await this.paymentsService.Delete(payment);
+                }
+            }
+
+            var statusCode = deleted ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest;
+
+            return new JsonResult(deleted) { StatusCode = statusCode };
         }
     }
 }

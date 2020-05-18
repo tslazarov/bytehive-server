@@ -27,7 +27,7 @@ namespace Bytehive.Data.Models
 
         public DateTime CreationDate { get; set; }
 
-        public string ValidationKey { get; set; }
+        public string AccessKey { get; set; }
 
         public Guid FileId { get; set; }
 

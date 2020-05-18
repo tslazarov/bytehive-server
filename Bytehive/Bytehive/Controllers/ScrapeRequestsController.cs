@@ -24,14 +24,17 @@ namespace Bytehive.Controllers
     public class ScrapeRequestsController : Controller
     {
         private readonly IScrapeRequestsService scrapeRequestsService;
+        private readonly IUsersService usersService;
         private readonly IAzureBlobStorageProvider azureBlobStorageProvider;
         private readonly IMapper mapper;
 
         public ScrapeRequestsController(IScrapeRequestsService scrapeRequestsService,
+            IUsersService usersService,
             IAzureBlobStorageProvider azureBlobStorageProvider,
             IMapper mapper)
         {
             this.scrapeRequestsService = scrapeRequestsService;
+            this.usersService = usersService;
             this.azureBlobStorageProvider = azureBlobStorageProvider;
             this.mapper = mapper;
         }
@@ -44,6 +47,29 @@ namespace Bytehive.Controllers
             var scrapeRequests = await this.scrapeRequestsService.GetScrapeRequests<ScrapeRequestListViewModel>();
 
             return new JsonResult(scrapeRequests.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("all/profile")]
+        public async Task<ActionResult> AllProfile()
+        {
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+
+            if (identity != null)
+            {
+                Guid id;
+
+                if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
+                {
+                    var scrapeRequests = await this.scrapeRequestsService.GetScrapeRequests<ScrapeRequestProfileListViewModel>();
+                    var filteredRequests = scrapeRequests.Where(r => r.UserId == id);
+
+                    return new JsonResult(filteredRequests.OrderByDescending(i => i.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+                }
+            }
+
+            return new JsonResult(new List<object>()) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpGet]
@@ -64,12 +90,46 @@ namespace Bytehive.Controllers
         }
 
         [HttpGet]
-        [Route("file/{id}")]
-        public async Task<ActionResult> DownloadFile(string id, string token)
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("detail/profile")]
+        public async Task<ActionResult> DetailProfile(string id)
         {
-            Guid parsedId;
             ClaimsIdentity identity = User.Identity as ClaimsIdentity;
 
+            if (identity != null)
+            {
+                Guid userId;
+
+                if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out userId))
+                {
+                    Guid parsedId;
+
+                    if (Guid.TryParse(id, out parsedId))
+                    {
+                        ScrapeRequestDetailViewModel scrapeRequest = await this.scrapeRequestsService.GetScrapeRequest<ScrapeRequestDetailViewModel>(parsedId);
+
+                        if (scrapeRequest.UserId == userId)
+                        {
+                            return new JsonResult(scrapeRequest) { StatusCode = StatusCodes.Status200OK };
+                        }
+                        else
+                        {
+                            return new JsonResult(new object()) { StatusCode = StatusCodes.Status200OK };
+                        }
+                    }
+                }
+            }
+
+            return new JsonResult(new object()) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
+        [Route("file/{id}")]
+        public async Task<ActionResult> DownloadFile(string id, string accessKey)
+        {
+            Guid parsedId;
+            Guid userId;
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
 
             if (Guid.TryParse(id, out parsedId))
             {
@@ -77,7 +137,11 @@ namespace Bytehive.Controllers
 
                 if (scrapeRequest != null && scrapeRequest.File != null)
                 {
-                    if((!string.IsNullOrEmpty(scrapeRequest.ValidationKey) && scrapeRequest.ValidationKey == token) || (identity != null && identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Role)?.Value == Constants.Strings.Roles.Administrator))
+                    var hasKey = (!string.IsNullOrEmpty(scrapeRequest.AccessKey) && scrapeRequest.AccessKey == accessKey);
+                    var isAdministrator = (identity != null && identity.FindFirst(Constants.Strings.JwtClaimIdentifiers.Role)?.Value == Constants.Strings.Roles.Administrator);
+                    var isOwner = (identity != null && Guid.TryParse(identity.FindFirst("id")?.Value, out userId) && userId == scrapeRequest.UserId);
+                   
+                    if (hasKey || isAdministrator || isOwner)
                     {
                         var file = await this.azureBlobStorageProvider.DownloadBlob(ScraperProcessor.FilesContainerName, scrapeRequest.File.Name);
 
@@ -124,6 +188,52 @@ namespace Bytehive.Controllers
             return new JsonResult(false) { StatusCode = StatusCodes.Status400BadRequest };
         }
 
+        [HttpPut]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("unlock")]
+        public async Task<ActionResult> Unlock(string id)
+        {
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+
+            if (identity != null)
+            {
+                Guid userId;
+
+                Guid parsedId;
+                bool updated = false;
+
+                if (Guid.TryParse(id, out parsedId) && identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out userId))
+                {
+                    ScrapeRequest scrapeRequest = await this.scrapeRequestsService.GetScrapeRequest<ScrapeRequest>(parsedId);
+
+                    if (scrapeRequest != null)
+                    {
+                        var reducedTokens = Math.Ceiling(scrapeRequest.Entries / 100.0);
+                        var user = await this.usersService.GetUser<User>(userId);
+
+                        if(user != null)
+                        {
+                            user.Tokens -= Convert.ToInt32(reducedTokens);
+                            var userUpdated = await this.usersService.Update(user);
+                        
+                            if(userUpdated)
+                            {
+                                scrapeRequest.Status = ScrapeRequestStatus.Paid;
+                                scrapeRequest.AccessKey = AccessKeyHelper.CreateAccessKey(16);
+                                updated = await this.scrapeRequestsService.Update(scrapeRequest);
+                            }
+                        }
+                    }
+                }
+
+                var statusCode = updated ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest;
+
+                return new JsonResult(updated) { StatusCode = statusCode };
+            }
+
+            return new JsonResult(false) { StatusCode = StatusCodes.Status400BadRequest };
+        }
+
         [HttpDelete]
         [Authorize(Policy = Constants.Strings.Roles.Administrator)]
         [Route("delete")]
@@ -139,7 +249,6 @@ namespace Bytehive.Controllers
                 if (scrapeRequest != null)
                 {
                     deleted = await this.scrapeRequestsService.Delete(scrapeRequest);
-
                 }
             }
 

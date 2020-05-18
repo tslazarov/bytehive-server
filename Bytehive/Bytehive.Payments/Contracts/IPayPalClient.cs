@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bytehive.Payment.Contracts
+namespace Bytehive.Payments.Contracts
 {
     public interface IPayPalClient
     {

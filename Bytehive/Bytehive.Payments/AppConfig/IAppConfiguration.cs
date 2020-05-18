@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Bytehive.Payment.AppConfig
+namespace Bytehive.Payments.AppConfig
 {
     public interface IAppConfiguration
     {

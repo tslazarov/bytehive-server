@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.IO;
 
-namespace Bytehive.Payment.AppConfig
+namespace Bytehive.Payments.AppConfig
 {
     public class AppConfiguration : IAppConfiguration
     {

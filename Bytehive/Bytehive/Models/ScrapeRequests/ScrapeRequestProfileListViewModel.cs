@@ -6,15 +6,13 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Models.ScrapeRequests
 {
-    public class ScrapeRequestListViewModel
+    public class ScrapeRequestProfileListViewModel
     {
         public Guid Id { get; set; }
 
         public DateTime CreationDate { get; set; }
 
-        public Guid UserId { get; set; }
-
-        public string Email { get; set; }
+        public string AccessKey { get; set; }
 
         public string FileName { get; set; }
 
@@ -23,5 +21,7 @@ namespace Bytehive.Models.ScrapeRequests
         public int Entries { get; set; }
 
         public ScrapeRequestStatus Status { get; set; }
+
+        public Guid UserId { get; set; }
     }
 }

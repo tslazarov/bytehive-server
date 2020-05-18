@@ -1,11 +1,7 @@
 ﻿using Bytehive.Data.Models;
-using PayPalHttp;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace Bytehive.Payment.Contracts
+namespace Bytehive.Payments.Contracts
 {
     public interface IPaymentProvider
     {
@@ -16,5 +12,7 @@ namespace Bytehive.Payment.Contracts
         Task<object> GetOrder(string orderId);
 
         Task<object> VerifyOrder(string orderId);
+
+
     }
 }
