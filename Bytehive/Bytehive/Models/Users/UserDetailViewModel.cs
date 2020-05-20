@@ -23,5 +23,7 @@ namespace Bytehive.Models.Users
         public Language DefaultLanguage { get; set; }
 
         public int Tokens { get; set; }
+
+        public string Image { get; set; }
     }
 }

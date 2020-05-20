@@ -146,7 +146,6 @@ namespace Bytehive.Controllers
                         var file = await this.azureBlobStorageProvider.DownloadBlob(AzureBlobStorageProvider.FilesContainerName, scrapeRequest.File.Name);
 
                         var cd = new ContentDisposition { FileName = scrapeRequest.File.Name, Inline = false };
-                        Response.Headers.Add("Content-Disposition", cd.ToString());
 
                         return File(file.Content, file.ContentType);
                     }

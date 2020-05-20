@@ -57,6 +57,17 @@ namespace Bytehive.Storage
             return response;
         }
 
+        public async Task<bool> DeleteBlob(string containerName, string fileName)
+        {
+            BlobContainerClient containerClient = this.GetContainer(containerName);
+
+            BlobClient blobClient = containerClient.GetBlobClient(fileName);
+
+            var deleted = await blobClient.DeleteIfExistsAsync();
+
+            return deleted.Value;
+        }
+
         public async Task<BlobDownloadInfo> DownloadBlob(string containerName, string fileName)
         {
             BlobContainerClient containerClient = this.GetContainer(containerName);
@@ -109,6 +120,9 @@ namespace Bytehive.Storage
                 case ".json": return "application/json";
                 case ".xml": return "application/xml";
                 case ".csv": return "application/csv";
+                case ".jpg": return "image/jpeg";
+                case ".jpeg": return "image/jpeg";
+                case ".png": return "image/png";
                 default: return "application/octet-stream";
             }
         }

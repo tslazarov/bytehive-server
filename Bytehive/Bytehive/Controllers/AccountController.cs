@@ -367,6 +367,27 @@ namespace Bytehive.Controllers
             return new JsonResult("Email information was not changed.") { StatusCode = StatusCodes.Status400BadRequest };
         }
 
+        [HttpGet]
+        [Route("image/{imagePath}")]
+        public async Task<ActionResult> GetAvatar(string imagePath)
+        {
+
+            if (!string.IsNullOrEmpty(imagePath))
+            {
+                try
+                {
+                    var file = await this.azureBlobStorageProvider.DownloadBlob(AzureBlobStorageProvider.ImagesContainerName, imagePath);
+                    return File(file.Content, file.ContentType);
+                }
+                catch
+                {
+                    return new JsonResult("File not found") { StatusCode = StatusCodes.Status404NotFound };
+                }
+            }
+
+            return new JsonResult("File not found") { StatusCode = StatusCodes.Status404NotFound };
+        }
+
         [HttpPut]
         [Authorize(Policy = Constants.Strings.Roles.User)]
         [Route("avatar")]
@@ -389,7 +410,7 @@ namespace Bytehive.Controllers
                         var match = Regex.Match(model.ImageBase64, "^data:image/([a-zA-Z]+);base64,");
                         var extension = match.Groups.Count > 1 ? match.Groups[1].ToString() : ".png";
 
-                        var fileName = string.Format("{0}.{1}", user.Id, extension);
+                        var fileName = string.Format("{0}-{1}.{2}", user.Id, DateTime.UtcNow.Ticks, extension);
                         byte[] bytes = Convert.FromBase64String(imageBase64);
                         using (MemoryStream ms = new MemoryStream(bytes))
                         {
@@ -397,6 +418,8 @@ namespace Bytehive.Controllers
 
                             if(blobContent != null)
                             {
+                                var oldImageDeleted = await this.azureBlobStorageProvider.DeleteBlob(AzureBlobStorageProvider.ImagesContainerName, user.Image);
+
                                 user.Image = fileName;
 
                                 var updated = await this.usersService.Update(user);
