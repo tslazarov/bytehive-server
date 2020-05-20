@@ -114,5 +114,9 @@ namespace Bytehive.Storage
         }
 
         private BlobServiceClient client;
+
+        public static readonly string FilesContainerName = "scrapefiles";
+        public static readonly string ImagesContainerName = "images";
+
     }
 }

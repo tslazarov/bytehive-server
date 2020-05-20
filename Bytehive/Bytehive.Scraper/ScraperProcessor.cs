@@ -57,7 +57,7 @@ namespace Bytehive.Scraper
 
                     if(exported)
                     {
-                        var fileProperties = this.azureBlobStorage.GetBlobProperties(FilesContainerName, this.GetFileName(currentRequest.Id, currentRequest.ExportType));
+                        var fileProperties = this.azureBlobStorage.GetBlobProperties(AzureBlobStorageProvider.FilesContainerName, this.GetFileName(currentRequest.Id, currentRequest.ExportType));
 
                         if(fileProperties != null)
                         {
@@ -360,7 +360,7 @@ namespace Bytehive.Scraper
             var json = JsonConvert.SerializeObject(entries, Formatting.Indented);
 
             var fileStream = this.scraperFileHelper.GenerateStreamFromString(json);
-            var blobContent = await this.azureBlobStorage.UploadBlob(FilesContainerName, fileName, ".json", fileStream);
+            var blobContent = await this.azureBlobStorage.UploadBlob(AzureBlobStorageProvider.FilesContainerName, fileName, ".json", fileStream);
 
             return blobContent != null;
         }
@@ -372,7 +372,7 @@ namespace Bytehive.Scraper
             var xml = this.scraperFileHelper.SerializeToXml(entries);
 
             var fileStream = this.scraperFileHelper.GenerateStreamFromString(xml);
-            var blobContent = await this.azureBlobStorage.UploadBlob(FilesContainerName, fileName, ".xml", fileStream);
+            var blobContent = await this.azureBlobStorage.UploadBlob(AzureBlobStorageProvider.FilesContainerName, fileName, ".xml", fileStream);
 
             return blobContent != null;
         }
@@ -384,7 +384,7 @@ namespace Bytehive.Scraper
             var txt = this.scraperFileHelper.SerializeToTxt(entries);
 
             var fileStream = this.scraperFileHelper.GenerateStreamFromString(txt);
-            var blobContent = await this.azureBlobStorage.UploadBlob(FilesContainerName, fileName, ".csv", fileStream);
+            var blobContent = await this.azureBlobStorage.UploadBlob(AzureBlobStorageProvider.FilesContainerName, fileName, ".csv", fileStream);
 
             return blobContent != null;
         }
@@ -396,7 +396,7 @@ namespace Bytehive.Scraper
             var txt = this.scraperFileHelper.SerializeToTxt(entries);
 
             var fileStream = this.scraperFileHelper.GenerateStreamFromString(txt);
-            var blobContent = await this.azureBlobStorage.UploadBlob(FilesContainerName, fileName, ".txt", fileStream);
+            var blobContent = await this.azureBlobStorage.UploadBlob(AzureBlobStorageProvider.FilesContainerName, fileName, ".txt", fileStream);
 
             return blobContent != null;
         }
@@ -425,7 +425,5 @@ namespace Bytehive.Scraper
 
             return fileName;
         }
-
-        public static readonly string FilesContainerName = "scrapefiles";
     }
 }

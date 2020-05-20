@@ -143,7 +143,7 @@ namespace Bytehive.Controllers
                    
                     if (hasKey || isAdministrator || isOwner)
                     {
-                        var file = await this.azureBlobStorageProvider.DownloadBlob(ScraperProcessor.FilesContainerName, scrapeRequest.File.Name);
+                        var file = await this.azureBlobStorageProvider.DownloadBlob(AzureBlobStorageProvider.FilesContainerName, scrapeRequest.File.Name);
 
                         var cd = new ContentDisposition { FileName = scrapeRequest.File.Name, Inline = false };
                         Response.Headers.Add("Content-Disposition", cd.ToString());

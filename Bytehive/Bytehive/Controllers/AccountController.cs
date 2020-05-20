@@ -5,12 +5,15 @@ using Bytehive.Models.Users;
 using Bytehive.Notifications;
 using Bytehive.Services.Contracts.Services;
 using Bytehive.Services.Utilities;
+using Bytehive.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.IO;
 using System.Net;
 using System.Security.Claims;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Bytehive.Controllers
@@ -23,16 +26,19 @@ namespace Bytehive.Controllers
         private readonly IAccountService accountService;
         private readonly IMapper mapper;
         private readonly ISendGridSender notificationsSender;
+        private readonly IAzureBlobStorageProvider azureBlobStorageProvider;
 
         public AccountController(IUsersService usersService,
             IAccountService accountService,
             ISendGridSender notificationsSender,
-            IMapper mapper)
+            IMapper mapper,
+            IAzureBlobStorageProvider azureBlobStorageProvider)
         {
             this.usersService = usersService;
             this.accountService = accountService;
             this.mapper = mapper;
             this.notificationsSender = notificationsSender;
+            this.azureBlobStorageProvider = azureBlobStorageProvider;
         }
 
         [HttpGet]
@@ -359,6 +365,50 @@ namespace Bytehive.Controllers
             }
 
             return new JsonResult("Email information was not changed.") { StatusCode = StatusCodes.Status400BadRequest };
+        }
+
+        [HttpPut]
+        [Authorize(Policy = Constants.Strings.Roles.User)]
+        [Route("avatar")]
+        public async Task<ActionResult> ChangeAvatar(ChangeAvatarModel model)
+        {
+            ClaimsIdentity identity = User.Identity as ClaimsIdentity;
+
+            if (identity != null)
+            {
+                Guid id;
+
+                if (identity.FindFirst("id") != null && Guid.TryParse(identity.FindFirst("id").Value, out id))
+                {
+                    var user = await this.usersService.GetUser<User>(id);
+
+                    if (user != null)
+                    {
+                        string imageBase64 = Regex.Replace(model.ImageBase64, "^data:image/[a-zA-Z]+;base64,", string.Empty);
+
+                        var match = Regex.Match(model.ImageBase64, "^data:image/([a-zA-Z]+);base64,");
+                        var extension = match.Groups.Count > 1 ? match.Groups[1].ToString() : ".png";
+
+                        var fileName = string.Format("{0}.{1}", user.Id, extension);
+                        byte[] bytes = Convert.FromBase64String(imageBase64);
+                        using (MemoryStream ms = new MemoryStream(bytes))
+                        {
+                            var blobContent = await this.azureBlobStorageProvider.UploadBlob(AzureBlobStorageProvider.ImagesContainerName, fileName, string.Format(".{0}", extension), ms);
+
+                            if(blobContent != null)
+                            {
+                                user.Image = fileName;
+
+                                var updated = await this.usersService.Update(user);
+
+                                return new JsonResult(updated) { StatusCode = StatusCodes.Status200OK };
+                            }
+                        }
+                    }
+                }
+            }
+
+            return new JsonResult(false) { StatusCode = StatusCodes.Status400BadRequest };
         }
 
         [HttpPost]
