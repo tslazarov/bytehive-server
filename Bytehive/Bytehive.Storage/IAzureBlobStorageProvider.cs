@@ -19,6 +19,8 @@ namespace Bytehive.Storage
 
         Task<BlobContentInfo> UploadBlob(string containerName, string fileName, string fileType, Stream fileStream);
 
+        Task<bool> DeleteBlob(string containerName, string fileName);
+
         Task<BlobDownloadInfo> DownloadBlob(string containerName, string fileName);
 
         Pageable<BlobItem> GetBlobs(string containerName);
