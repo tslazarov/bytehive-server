@@ -27,7 +27,9 @@ namespace Bytehive.Services.Infrastructure
             this.CreateMap<User, UserListViewModel>()
                 .ForMember(m => m.TotalRequests, map => map.MapFrom(source => source.ScrapeRequests.Count));
 
-            this.CreateMap<User, UserDetailViewModel>();
+            this.CreateMap<User, UserDetailViewModel>()
+                .ForMember(m => m.ScrapeRequests, map => map.MapFrom(source => source.ScrapeRequests))
+                .ForMember(m => m.Payments, map => map.MapFrom(source => source.Payments));
 
             // ScrapeRequest
             this.CreateMap<ScrapeRequestCreateModel, ScrapeRequest>()
