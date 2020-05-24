@@ -68,6 +68,9 @@ namespace Bytehive.Services.Infrastructure
 
             // Statistics
             this.CreateMap<User, UsersSummaryViewModel>();
+
+            this.CreateMap<ScrapeRequest, ScrapeRequestsSummaryViewModel>()
+                .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
         }
     }
 }

@@ -45,5 +45,25 @@ namespace Bytehive.Controllers
 
             return new JsonResult(summaryViewModel) { StatusCode = StatusCodes.Status200OK };
         }
+
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("users")]
+        public async Task<ActionResult> UsersSummary()
+        {
+            var users = await this.usersService.GetUsers<UsersSummaryViewModel>();
+
+            return new JsonResult(users.OrderByDescending(u => u.RegistrationDate)) { StatusCode = StatusCodes.Status200OK };
+        }
+
+        [HttpGet]
+        [Authorize(Policy = Constants.Strings.Roles.Administrator)]
+        [Route("requests")]
+        public async Task<ActionResult> RequestsSummary()
+        {
+            var requests = await this.scrapeRequestsService.GetScrapeRequests<ScrapeRequestsSummaryViewModel>();
+
+            return new JsonResult(requests.OrderByDescending(u => u.CreationDate)) { StatusCode = StatusCodes.Status200OK };
+        }
     }
 }
