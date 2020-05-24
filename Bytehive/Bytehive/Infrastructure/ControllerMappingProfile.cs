@@ -3,6 +3,7 @@ using Bytehive.Data.Models;
 using Bytehive.Models.Account;
 using Bytehive.Models.Payment;
 using Bytehive.Models.ScrapeRequests;
+using Bytehive.Models.Statistics;
 using Bytehive.Models.Users;
 using Bytehive.Services.Utilities;
 using Newtonsoft.Json;
@@ -64,6 +65,9 @@ namespace Bytehive.Services.Infrastructure
                 .ForMember(m => m.TierName, map => map.MapFrom(source => source.PaymentTier != null ? source.PaymentTier.Name : string.Empty))
                 .ForMember(m => m.TierSku, map => map.MapFrom(source => source.PaymentTier != null ? source.PaymentTier.Sku : string.Empty))
                 .ForMember(m => m.TierValue, map => map.MapFrom(source => source.PaymentTier != null ? source.PaymentTier.Value : 0));
+
+            // Statistics
+            this.CreateMap<User, UsersSummaryViewModel>();
         }
     }
 }
