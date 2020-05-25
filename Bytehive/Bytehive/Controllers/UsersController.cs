@@ -49,7 +49,16 @@ namespace Bytehive.Controllers
         [Route("detail")]
         public async Task<ActionResult> Detail(string id)
         {
-            return new JsonResult("") { StatusCode = StatusCodes.Status200OK };
+            Guid parsedId;
+
+            if (Guid.TryParse(id, out parsedId))
+            {
+                var user = await this.usersService.GetUser<UserDetailViewModel>(parsedId);
+
+                return new JsonResult(user) { StatusCode = StatusCodes.Status200OK };
+            }
+
+            return new JsonResult("") { StatusCode = StatusCodes.Status400BadRequest };
         }
 
         [HttpDelete]

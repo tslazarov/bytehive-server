@@ -1,4 +1,6 @@
 ﻿using Bytehive.Data.Models;
+using Bytehive.Models.Payment;
+using Bytehive.Models.ScrapeRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,5 +27,9 @@ namespace Bytehive.Models.Users
         public int Tokens { get; set; }
 
         public string Image { get; set; }
+
+        public List<ScrapeRequestListViewModel> ScrapeRequests { get; set; }
+
+        public List<PaymentListViewModel> Payments { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using Bytehive.Data.Models;
 using Bytehive.Models.Account;
 using Bytehive.Models.Payment;
 using Bytehive.Models.ScrapeRequests;
+using Bytehive.Models.Statistics;
 using Bytehive.Models.Users;
 using Bytehive.Services.Utilities;
 using Newtonsoft.Json;
@@ -27,7 +28,9 @@ namespace Bytehive.Services.Infrastructure
             this.CreateMap<User, UserListViewModel>()
                 .ForMember(m => m.TotalRequests, map => map.MapFrom(source => source.ScrapeRequests.Count));
 
-            this.CreateMap<User, UserDetailViewModel>();
+            this.CreateMap<User, UserDetailViewModel>()
+                .ForMember(m => m.ScrapeRequests, map => map.MapFrom(source => source.ScrapeRequests))
+                .ForMember(m => m.Payments, map => map.MapFrom(source => source.Payments));
 
             // ScrapeRequest
             this.CreateMap<ScrapeRequestCreateModel, ScrapeRequest>()
@@ -62,6 +65,12 @@ namespace Bytehive.Services.Infrastructure
                 .ForMember(m => m.TierName, map => map.MapFrom(source => source.PaymentTier != null ? source.PaymentTier.Name : string.Empty))
                 .ForMember(m => m.TierSku, map => map.MapFrom(source => source.PaymentTier != null ? source.PaymentTier.Sku : string.Empty))
                 .ForMember(m => m.TierValue, map => map.MapFrom(source => source.PaymentTier != null ? source.PaymentTier.Value : 0));
+
+            // Statistics
+            this.CreateMap<User, UsersSummaryViewModel>();
+
+            this.CreateMap<ScrapeRequest, ScrapeRequestsSummaryViewModel>()
+                .ForMember(m => m.Email, map => map.MapFrom(source => source.User != null ? source.User.Email : string.Empty));
         }
     }
 }
