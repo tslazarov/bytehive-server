@@ -35,7 +35,9 @@ namespace Bytehive.Controllers
         [Route("all")]
         public async Task<ActionResult> All()
         {
-            return new JsonResult("") { StatusCode = StatusCodes.Status200OK };
+            var faqs = await this.faqsService.GetFaqs<FaqListViewModel>();
+
+            return new JsonResult(faqs) { StatusCode = StatusCodes.Status200OK };
         }
 
 

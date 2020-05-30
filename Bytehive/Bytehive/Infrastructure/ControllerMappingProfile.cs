@@ -75,6 +75,8 @@ namespace Bytehive.Services.Infrastructure
 
             // Faqs
             // ScrapeRequest
+            this.CreateMap<FAQ, FaqListViewModel>();
+
             this.CreateMap<FAQCategory, FaqCategoryListViewModel>();
 
             this.CreateMap<FaqCreateModel, FAQ>()
