@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Services.Contracts.Repository
 {
-    public interface IFaqRepository
+    public interface IFaqCategoriesRepository
     {
         Task<IEnumerable<TModel>> GetAll<TModel>();
  
         Task<TModel> Get<TModel>(Guid id);
 
-        Task<bool> Create<TModel>(TModel faq);
+        Task<bool> Create<TModel>(TModel category);
 
-        Task<bool> Update<TModel>(TModel faq);
+        Task<bool> Update<TModel>(TModel category);
 
         Task<bool> Delete(Guid id);
     }

@@ -13,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Services.Repository
 {
-    public class FaqCategoryRepository : IFaqCategoryRepository
+    public class FaqCategoriesRepository : IFaqCategoriesRepository
     {
         private readonly BytehiveDbContext db;
         private readonly IMapper mapper;
 
-        public FaqCategoryRepository(BytehiveDbContext db,
+        public FaqCategoriesRepository(BytehiveDbContext db,
             IMapper mapper)
         {
             this.db = db;

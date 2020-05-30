@@ -11,10 +11,10 @@ namespace Bytehive.Services.Contracts.Services
 
         Task<IEnumerable<TModel>> GetScrapeRequests<TModel>();
 
-        Task<bool> Create(ScrapeRequest ScrapeRequest);
+        Task<bool> Create(ScrapeRequest scrapeRequest);
 
-        Task<bool> Update(ScrapeRequest ScrapeRequest);
+        Task<bool> Update(ScrapeRequest scrapeRequest);
 
-        Task<bool> Delete(ScrapeRequest ScrapeRequest);
+        Task<bool> Delete(ScrapeRequest scrapeRequest);
     }
 }
