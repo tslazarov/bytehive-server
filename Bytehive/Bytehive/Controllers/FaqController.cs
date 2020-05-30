@@ -55,7 +55,16 @@ namespace Bytehive.Controllers
         [Route("detail/{id}")]
         public async Task<ActionResult> Detail(string id)
         {
-            return new JsonResult("") { StatusCode = StatusCodes.Status200OK };
+            Guid parsedId;
+
+            if (Guid.TryParse(id, out parsedId))
+            {
+                FaqDetailViewModel faq = await this.faqsService.GetFaq<FaqDetailViewModel>(parsedId);
+
+                return new JsonResult(faq) { StatusCode = StatusCodes.Status200OK };
+            }
+
+            return new JsonResult(null) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpPost]
@@ -89,9 +98,30 @@ namespace Bytehive.Controllers
         [HttpPut]
         [Authorize(Policy = Constants.Strings.Roles.Administrator)]
         [Route("edit/{id}")]
-        public async Task<ActionResult> Edit()
+        public async Task<ActionResult> Edit(string id, FaqEditModel model)
         {
-            return new JsonResult("") { StatusCode = StatusCodes.Status200OK };
+            Guid parsedId;
+            bool edited = false;
+
+            if (Guid.TryParse(id, out parsedId))
+            {
+                FAQ faq = await this.faqsService.GetFaq<FAQ>(parsedId);
+
+                if (faq != null)
+                {
+                    faq.QuestionEN = model.QuestionEN;
+                    faq.QuestionBG = model.QuestionBG;
+                    faq.AnswerEN = model.AnswerEN;
+                    faq.AnswerBG = model.AnswerBG;
+                    faq.CategoryId = model.CategoryId;
+
+                    edited = await this.faqsService.Update(faq);
+                }
+            }
+
+            var statusCode = edited ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest;
+
+            return new JsonResult(edited) { StatusCode = statusCode };
         }
 
         [HttpDelete]
