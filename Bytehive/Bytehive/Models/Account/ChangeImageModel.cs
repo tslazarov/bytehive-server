@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Bytehive.Models.Account
 {
-    public class ChangeAvatarModel
+    public class ChangeImageModel
     {
         public string ImageBase64 { get; set; }
     }

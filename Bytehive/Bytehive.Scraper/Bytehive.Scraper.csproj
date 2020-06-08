@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bytehive.Data\Bytehive.Data.csproj" />
+    <ProjectReference Include="..\Bytehive.Notifications\Bytehive.Notifications.csproj" />
     <ProjectReference Include="..\Bytehive.Services\Bytehive.Services.csproj" />
     <ProjectReference Include="..\Bytehive.Storage\Bytehive.Storage.csproj" />
   </ItemGroup>

@@ -1,16 +1,12 @@
-﻿using Bytehive.Data.Contracts;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Bytehive.Data.Models
+namespace Bytehive.Models.Faq
 {
-    [Table("faq")]
-    public class FAQ : IIdentifier
+    public class FaqListViewModel
     {
-        [Key]
         public Guid Id { get; set; }
 
         public string QuestionEN { get; set; }
@@ -20,8 +16,6 @@ namespace Bytehive.Data.Models
         public string AnswerEN { get; set; }
 
         public string AnswerBG { get; set; }
-
-        public FAQCategory Category { get; set; }
 
         public Guid CategoryId { get; set; }
     }

@@ -29,12 +29,7 @@ namespace Bytehive.Scraper
                     .Where(n => n.Name == "script")
                     .ToList();
 
-
             nodes.ForEach(n => n.Remove());
-
-            var newNodes = html.DocumentNode.Descendants()
-                    .Where(n => n.Name == "script")
-                    .ToList();
 
             this.TransformRelativeToAbsolute(host, html);
 
@@ -188,22 +183,22 @@ namespace Bytehive.Scraper
             return html.DocumentNode.OuterHtml;
         }
 
-        public string CreateSelector(HtmlNode node)
+public string CreateSelector(HtmlNode node)
+{
+    var element = node.Name;
+
+    foreach (var attribute in node.Attributes)
+    {
+        if(!ShouldProcessAttribute(attribute.Name))
         {
-            var element = node.Name;
-
-            foreach (var attribute in node.Attributes)
-            {
-                if(!ShouldProcessAttribute(attribute.Name))
-                {
-                    continue;
-                }
-
-                element += attribute.Name == "id" ? $"#{attribute.Value}" : attribute.Name == "class" ? $".{attribute.Value.Replace(" ", ".")}" : $"[{attribute.Name}='{attribute.Value}']";
-            }
-
-            return element;
+            continue;
         }
+
+        element += attribute.Name == "id" ? $"#{attribute.Value}" : attribute.Name == "class" ? $".{attribute.Value.Replace(" ", ".")}" : $"[{attribute.Name}='{attribute.Value}']";
+    }
+
+    return element;
+}
 
         private HtmlNode GetNode(IList<HtmlNode> nodes, string elementName, int line, bool scrapeLink)
         {

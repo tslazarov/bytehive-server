@@ -13,5 +13,9 @@ namespace Bytehive.Notifications
         string GetResetPasswordPlainText(string randomNumber, string language);
 
         string GetResetPasswordHtml(string randomNumber, string language);
+
+        string GetRequestReadyPlainText(string language);
+
+        string GetRequestReadyHtml(string language);
     }
 }

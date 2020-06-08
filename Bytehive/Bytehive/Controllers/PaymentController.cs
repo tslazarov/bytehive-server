@@ -70,7 +70,7 @@ namespace Bytehive.Controllers
 
         [HttpGet]
         [Authorize(Policy = Constants.Strings.Roles.Administrator)]
-        [Route("detail")]
+        [Route("detail/{id}")]
         public async Task<ActionResult> Detail(string id)
         {
             Guid parsedId;
@@ -184,7 +184,7 @@ namespace Bytehive.Controllers
 
         [HttpDelete]
         [Authorize(Policy = Constants.Strings.Roles.Administrator)]
-        [Route("delete")]
+        [Route("delete/{id}")]
         public async Task<ActionResult> Delete(string id)
         {
             Guid parsedId;

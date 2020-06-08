@@ -152,6 +152,8 @@ namespace Bytehive
             services.AddTransient<IRefreshTokensRepository, RefreshTokensRepository>();
             services.AddTransient<IScrapeRequestsRepository, ScrapeRequestsRepository>();
             services.AddTransient<IUserRolesRepository, UserRolesRepository>();
+            services.AddTransient<IFaqsRepository, FaqsRepository>();
+            services.AddTransient<IFaqCategoriesRepository, FaqCategoriesRepository>();
             services.AddTransient<IFilesRepository, FilesRepository>();
             services.AddTransient<IPaymentsRepository, PaymentsRepository>();
             services.AddTransient<IPaymentTiersRepository, PaymentTiersRepository>();
@@ -159,6 +161,8 @@ namespace Bytehive
             services.AddTransient<IAccountService, AccountService>();
             services.AddTransient<IUsersService, UsersService>();
             services.AddTransient<IScrapeRequestsService, ScrapeRequestsService>();
+            services.AddTransient<IFaqsService, FaqsService>();
+            services.AddTransient<IFaqCategoriesService, FaqCategoriesService>();
             services.AddTransient<IFilesService, FilesService>();
             services.AddTransient<IPaymentsService, PaymentsService>();
             services.AddTransient<IPaymentTiersService, PaymentTiersService>();
