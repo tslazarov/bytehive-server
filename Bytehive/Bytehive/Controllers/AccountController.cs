@@ -390,8 +390,8 @@ namespace Bytehive.Controllers
 
         [HttpPut]
         [Authorize(Policy = Constants.Strings.Roles.User)]
-        [Route("avatar")]
-        public async Task<ActionResult> ChangeAvatar(ChangeAvatarModel model)
+        [Route("image")]
+        public async Task<ActionResult> ChangeImage(ChangeImageModel model)
         {
             ClaimsIdentity identity = User.Identity as ClaimsIdentity;
 

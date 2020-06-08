@@ -42,12 +42,12 @@ namespace Bytehive.Controllers
 
 
         [HttpGet]
-        [Route("all/category")]
+        [Route("category/all")]
         public async Task<ActionResult> AllCategory()
         {
             var faqCategories = await this.faqCategoriesService.GetFaqCategories<FaqCategoryListViewModel>();
 
-            return new JsonResult(faqCategories) { StatusCode = StatusCodes.Status200OK };
+            return new JsonResult(faqCategories.OrderBy(c => c.Ordinal)) { StatusCode = StatusCodes.Status200OK };
         }
 
         [HttpGet]

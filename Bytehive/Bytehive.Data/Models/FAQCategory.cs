@@ -17,6 +17,8 @@ namespace Bytehive.Data.Models
 
         public string NameBG { get; set; }
 
+        public int Ordinal { get; set; }
+
         public virtual ICollection<FAQ> FAQs { get; set; } = new List<FAQ>();
     }
 }

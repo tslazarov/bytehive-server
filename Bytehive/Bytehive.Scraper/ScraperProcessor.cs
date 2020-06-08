@@ -1,4 +1,5 @@
 ﻿using Bytehive.Data.Models;
+using Bytehive.Notifications;
 using Bytehive.Scraper.Contracts;
 using Bytehive.Scraper.Models;
 using Bytehive.Services.Contracts.Services;
@@ -9,6 +10,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
@@ -21,14 +23,18 @@ namespace Bytehive.Scraper
         private IScraperClient scraperClient;
         private IScraperParser scraperParser;
         private IScraperFileHelper scraperFileHelper;
+        private ISendGridSender notificationsSender;
         private IScrapeRequestsService scrapeRequestsService;
+        private IUsersService usersService;
         private IFilesService filesService;
 
         public ScraperProcessor(IAzureBlobStorageProvider azureBlobStorage,
             IScraperClient scraperClient,
             IScraperParser scraperParser,
             IScraperFileHelper scraperFileHelper,
+            ISendGridSender notificationsSender,
             IScrapeRequestsService scrapeRequestsService,
+            IUsersService usersService,
             IFilesService filesService)
         {
             this.azureBlobStorage = azureBlobStorage;
@@ -36,6 +42,7 @@ namespace Bytehive.Scraper
             this.scraperParser = scraperParser;
             this.scraperFileHelper = scraperFileHelper;
             this.scrapeRequestsService = scrapeRequestsService;
+            this.usersService = usersService;
             this.filesService = filesService;
         }
 
@@ -83,6 +90,18 @@ namespace Bytehive.Scraper
                                 currentRequest.FileId = file.Id;
                                 currentRequest.File = file;
                                 await this.scrapeRequestsService.Update(currentRequest);
+
+                                var user = await this.usersService.GetUser<User>(currentRequest.UserId);
+
+                                if(user != null)
+                                {
+                                    string language = user.DefaultLanguage.ToString();
+
+                                    string plainText = this.notificationsSender.GetRequestReadyPlainText(language);
+                                    string htmlText = this.notificationsSender.GetRequestReadyHtml(language);
+
+                                    HttpStatusCode status = await this.notificationsSender.SendMessage("support@bytehive.com", "Bytehive Support", user.Email, "[Bytehive] Scrape request ready", plainText, htmlText);
+                                }
                             }
                         }
                         else

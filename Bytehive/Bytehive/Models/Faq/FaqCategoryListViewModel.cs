@@ -12,5 +12,7 @@ namespace Bytehive.Models.Faq
         public string NameEN { get; set; }
 
         public string NameBG { get; set; }
+
+        public int Ordinal { get; set; }
     }
 }
